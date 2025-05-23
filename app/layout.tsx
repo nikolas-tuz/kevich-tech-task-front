@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist_Mono, Poppins } from 'next/font/google';
 import './globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin']
+const poppins = Poppins({
+  variable: '--font-poppins',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'] // Adjust weights as needed
 });
 
 const geistMono = Geist_Mono({
@@ -13,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Kevich Solutions Tech Task',
+  title: 'Kevich Solutions Tech Task - Train Schedule!',
   description: 'This task was done by Nikolai Tuz as a technical task for Kevich Solutions company!'
 };
 
@@ -26,7 +27,7 @@ export default function
   return (
     <html lang="en">
     <body
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${poppins.variable} ${geistMono.variable} antialiased`}
     >
     {children}
     </body>
