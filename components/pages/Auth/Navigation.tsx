@@ -1,7 +1,7 @@
 // 'use client';
 
 import { ComponentPropsWithoutRef } from 'react';
-import Logo from '@/components/UI/Icons/Logo';
+import LogoIcon from '@/components/UI/Icons/LogoIcon';
 import { Skeleton } from '@mui/material';
 
 type NavigationType = {
@@ -14,7 +14,7 @@ export default function Navigation({ ...props }: NavigationType) {
       <nav {...props}>
         <div className={`flex items-center justify-between`}>
           <div className={`flex items-center gap-4`}>
-            <Logo />
+            <LogoIcon />
             <h2 className={`font-medium text-xl`}>Train Schedule</h2>
           </div>
           <div>

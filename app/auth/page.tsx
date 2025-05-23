@@ -14,7 +14,7 @@ import BadgeButton from '@/components/UI/Buttons/BadgeButton';
 import MainHeading from '@/components/UI/Typography/MainHeading';
 import DivContainer from '@/components/UI/Containers/DivContainer';
 import Input from '@/components/UI/Inputs/Input';
-import ErrorMessage from '@/components/UI/InfoMesage/ErrorMesage';
+import ErrorMessage from '@/components/UI/InfoMessage/ErrorMesage';
 import Button from '@/components/UI/Buttons/Button';
 import { loginSchema } from '@/utils/schemas/login.schema';
 import { CircularProgress } from '@mui/material';
