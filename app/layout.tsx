@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist_Mono, Poppins } from 'next/font/google';
 import './globals.css';
+import DivContainer from '@/components/UI/Containers/DivContainer';
 
 const poppins = Poppins({
   variable: '--font-poppins',
@@ -29,6 +30,7 @@ export default function
     <body
       className={`${poppins.variable} ${geistMono.variable} antialiased`}
     >
+    <DivContainer id={`dialog`}></DivContainer>
     {children}
     </body>
     </html>

@@ -7,16 +7,15 @@ import BadgeButton from '@/components/UI/Buttons/BadgeButton';
 import { Tooltip } from '@mui/material';
 import ArrowIcon from '@/components/UI/Icons/ArrowIcon';
 import { formatISOToCustomDate } from '@/utils/functions/formatDate';
+import { formatStatus } from '@/utils/functions/formatStatus';
 
 type TrainScheduleCardType = {
   id: string;
   trainNumber: number;
   departureStation: string;
   arrivalStation: string;
-  time: {
-    departure: string;
-    arrival: string;
-  }
+  departureTime: string;
+  arrivalTime: string;
   status: string;
   onEditClick?: (id: string) => void;
   // children: ReactNode;
@@ -28,7 +27,8 @@ export default function
                       trainNumber,
                       status,
                       className,
-                      time,
+                      departureTime,
+                      arrivalTime,
                       departureStation,
                       arrivalStation,
                       onEditClick,
@@ -52,13 +52,12 @@ export default function
           <Paragraph className={`text-sm`}>Arrival station: {arrivalStation}</Paragraph>
         </DivContainer>
         <DivContainer className={`flex flex-col gap-2 w-fit`}>
-          <BadgeButton className={`text-sm`}>Departure time: {formatISOToCustomDate(time.departure)}</BadgeButton>
-          <BadgeButton className={`text-sm`}>Arrival time: {formatISOToCustomDate(time.arrival)}</BadgeButton>
+          <BadgeButton className={`text-sm`}>Departure time: {formatISOToCustomDate(departureTime)}</BadgeButton>
+          <BadgeButton className={`text-sm`}>Arrival time: {formatISOToCustomDate(arrivalTime)}</BadgeButton>
         </DivContainer>
         <BadgeButton
           className={`absolute top-3 right-3 bg-white`}
-          /* YUP. Damnable regex. This operation might be costly. I do use it just for the sake of beauty. Please do not beat me the reviewer 😁 */
-          active={false}>{status.replaceAll(`-`, ` `).replace(/\b\w/g, char => char.toUpperCase())}
+          active={false}>{formatStatus(status)}
         </BadgeButton>
         <Tooltip title={`Click to edit this train schedule :D`} followCursor>
           <button

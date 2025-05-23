@@ -3,10 +3,8 @@ export type TrainScheduleDataType = {
   trainNumber: number;
   departureStation: string;
   arrivalStation: string;
-  time: {
-    departure: string;
-    arrival: string;
-  }
+  departureTime: string;
+  arrivalTime: string;
   status: string;
 }
 
@@ -16,10 +14,8 @@ export const trainScheduleData: TrainScheduleDataType[] = [
     trainNumber: 101,
     departureStation: 'Station A',
     arrivalStation: 'Station B',
-    time: {
-      departure: '2023-08-13T08:00:00Z',
-      arrival: '2023-08-13T10:00:00Z'
-    },
+    departureTime: '2023-08-13T08:00:00Z',
+    arrivalTime: '2023-08-13T10:00:00Z',
     status: 'on-time'
   },
   {
@@ -27,10 +23,8 @@ export const trainScheduleData: TrainScheduleDataType[] = [
     trainNumber: 102,
     departureStation: 'Station C',
     arrivalStation: 'Station D',
-    time: {
-      departure: '2023-08-13T09:30:00Z',
-      arrival: '2023-08-13T11:45:00Z'
-    },
+    departureTime: '2023-08-13T09:30:00Z',
+    arrivalTime: '2023-08-13T11:45:00Z',
     status: 'delayed'
   },
   {
@@ -38,10 +32,8 @@ export const trainScheduleData: TrainScheduleDataType[] = [
     trainNumber: 103,
     departureStation: 'Station E',
     arrivalStation: 'Station F',
-    time: {
-      departure: '2023-08-13T12:00:00Z',
-      arrival: '2023-08-13T14:30:00Z'
-    },
+    departureTime: '2023-08-13T12:00:00Z',
+    arrivalTime: '2023-08-13T14:30:00Z',
     status: 'departed'
   },
   {
@@ -49,10 +41,8 @@ export const trainScheduleData: TrainScheduleDataType[] = [
     trainNumber: 104,
     departureStation: 'Station G',
     arrivalStation: 'Station H',
-    time: {
-      departure: '2023-08-13T15:00:00Z',
-      arrival: '2023-08-13T17:15:00Z'
-    },
+    departureTime: '2023-08-13T15:00:00Z',
+    arrivalTime: '2023-08-13T17:15:00Z',
     status: 'cancelled'
   },
   {
@@ -60,10 +50,8 @@ export const trainScheduleData: TrainScheduleDataType[] = [
     trainNumber: 105,
     departureStation: 'Station I',
     arrivalStation: 'Station J',
-    time: {
-      departure: '2023-08-13T18:00:00Z',
-      arrival: '2023-08-13T20:30:00Z'
-    },
+    departureTime: '2023-08-13T18:00:00Z',
+    arrivalTime: '2023-08-13T20:30:00Z',
     status: 'in-transit'
   }
 ];
