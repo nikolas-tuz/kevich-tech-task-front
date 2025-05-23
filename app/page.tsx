@@ -13,10 +13,10 @@ import MUIDialog from '@/components/UI/Dialogs/MUIDialog';
 import Input from '@/components/UI/FormControls/Input';
 import Button from '@/components/UI/Buttons/Button';
 import Paragraph from '@/components/UI/Typography/Paragraph';
-import { formatISOToDatetime } from '@/utils/functions/formatISOToDatetime';
 import { AvailableStatusesEnum } from '@/utils/enums/available-statuses.enum';
 import Select from '@/components/UI/FormControls/Select';
 import { formatStatus } from '@/utils/functions/formatStatus';
+import { formatISOToCustomDatetime } from '@/utils/functions/formatISOToDatetime';
 
 export type ActiveTrainScheduleFilterType =
   `all`
@@ -168,27 +168,27 @@ export default function Home() {
 
         <DivContainer className={`flex items-center gap-3 mb-10`}>
           <Input
-            defaultValue={trainScheduleInputs?.departureTime ? formatISOToDatetime(trainScheduleInputs.departureTime) : ``}
+            defaultValue={trainScheduleInputs?.departureTime ? formatISOToCustomDatetime(trainScheduleInputs.departureTime) : ``}
             top
             className={`max-w-[220px] text-center`}
             // disabled={isPending}
             tooltip={`Departure Time`}
             name={`departureTime`}
             required
-            type={`datetime-local`}
-            placeholder={`Departure Time`}
+            type={`text`}
+            placeholder={`DD/MM/YYYY, HH:mm`}
           />
 
           <Input
-            defaultValue={trainScheduleInputs?.arrivalTime ? formatISOToDatetime(trainScheduleInputs.arrivalTime) : ``}
+            defaultValue={trainScheduleInputs?.arrivalTime ? formatISOToCustomDatetime(trainScheduleInputs.arrivalTime) : ``}
             top
             className={`max-w-[220px] text-center`}
             // disabled={isPending}
             tooltip={`Arrival Time`}
             name={`arrivalTime`}
             required
-            type={`datetime-local`}
-            placeholder={`Arrival Time`}
+            type={`text`}
+            placeholder={`DD/MM/YYYY, HH:mm`}
           />
           <Select className={`min-w-[220px] bg-zinc-100`} defaultValue={trainScheduleInputs?.status} name={`status`}
                   tooltip={`Status`}>
