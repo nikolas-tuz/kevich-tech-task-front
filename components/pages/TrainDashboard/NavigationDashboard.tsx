@@ -7,7 +7,7 @@ import Paragraph from '@/components/UI/Typography/Paragraph';
 import LogoutIcon from '@/components/UI/Icons/LogoutIcon';
 import { trimText } from '@/utils/functions/trimText';
 import { logOut } from '@/utils/auth/logOut';
-import { useGetUserEmail } from '@/hooks/getUserEmail';
+import { useGetUserEmail } from '@/hooks/useGetUserEmail';
 import { Skeleton } from '@mui/material';
 import MUIBackdrop from '@/components/UI/Backdrops/MUIBackdrop';
 

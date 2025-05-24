@@ -21,10 +21,11 @@ import {
   formatISOToCustomDatetime,
   isValidCustomDatetimeFormat
 } from '@/utils/functions/formatISOToDatetime';
-import SnackbarMUI, { SnackbarData } from '@/components/UI/Snackbars/SnackbarMUI';
-import { OverridableStringUnion } from '@mui/types';
-import { AlertColor, AlertPropsColorOverrides } from '@mui/material';
+import SnackbarMUI from '@/components/UI/Snackbars/SnackbarMUI';
 import { trainScheduleSchema } from '@/utils/schemas/train-schedule.schema';
+import { useHandleDialogState } from '@/hooks/useHandleDialogState';
+import { undefined } from 'zod';
+import { useHandleSnackbarState } from '@/hooks/useHandleSnackbarState';
 
 export type ActiveTrainScheduleFilterType =
   `all`
@@ -72,8 +73,6 @@ const availableFilterOptions: AvailableFilterOptionsType[] = [
 ];
 
 
-type DialogModeType = `Edit` | `Create`;
-
 type TrainNumberFromDBType = {
   trainNumber: number;
 }
@@ -92,11 +91,8 @@ type TrainScheduleInputsType = {
 
 export default function Home() {
   const [inputValue, setInputValue] = useState(``);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogMode, setDialogMode] = useState<DialogModeType>();
-
-  const [snackbarState, setSnackbarState] = useState<boolean>(false);
-  const [snackbarData, setSnackbarData] = useState<SnackbarData>();
+  const { handleDialogState, dialogMode, dialogOpen, setDialogOpen, setDialogMode } = useHandleDialogState();
+  const { handleSnackbarState, setSnackbarState, snackbarState, snackbarData } = useHandleSnackbarState();
 
   const [trainScheduleInputs, setTrainScheduleInputs] = useState<TrainScheduleInputsType & TrainNumberFromDBType>();
 
@@ -112,12 +108,6 @@ export default function Home() {
     });
   }, []);
 
-  function handleDialogState(dialogMode: DialogModeType, state: boolean) {
-    setDialogMode(dialogMode);
-    setDialogOpen(state);
-    setTrainScheduleInputs(undefined);
-  }
-
   function handleDialogStateForEdit(id: string, state: boolean) {
     setDialogMode(`Edit`);
     const scheduleData = trainScheduleData.find(schedule => schedule.id === id);
@@ -130,12 +120,6 @@ export default function Home() {
     setActiveTrainScheduleFilter(filterOption);
     console.info('inputValue:', inputValue);
     /* TODO: FETCH THE DATA FROM EXISTING DATA filtered. */
-  }
-
-  function handleSnackbarState(severity: OverridableStringUnion<AlertColor, AlertPropsColorOverrides>,
-                               message: string, state = true) {
-    setSnackbarState(state);
-    setSnackbarData({ severity, message });
   }
 
   function handleFormSubmission(e: FormEvent<HTMLFormElement>) {
@@ -322,7 +306,16 @@ export default function Home() {
             </DivContainer>
             <DivContainer
               className={`mt-4 container m-auto px-6`}>
-              <button onClick={() => handleDialogState(`Create`, true)} className={`border-1 cursor-pointer 
+              <button onClick={() => {
+                handleDialogState(`Create`, true);
+
+                // The error would NOT occur.
+                // The point of this line is to remove input data
+                // so you won't see the data of the previous schedule.
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
+                setTrainScheduleInputs(undefined);
+              }} className={`border-1 cursor-pointer 
               border-dashed border-zinc-300 w-[362px] h-36 rounded-lg
               transition-all duration-300 hover:text-white hover:bg-zinc-950
               hover:border-transparent`}>Create New Schedule
