@@ -19,9 +19,9 @@ import Select from '@/components/UI/FormControls/Select';
 import { formatStatus } from '@/utils/functions/formatStatus';
 import {
   formatCustomDatetimeToISO,
-  formatISOToCustomDatetime,
+  formatDatetime,
   isValidCustomDatetimeFormat
-} from '@/utils/functions/formatISOToDatetime';
+} from '@/utils/functions/formatDate';
 import SnackbarMUI from '@/components/UI/Snackbars/SnackbarMUI';
 import { trainScheduleSchema } from '@/utils/schemas/train-schedule.schema';
 import { useHandleDialogState } from '@/hooks/useHandleDialogState';
@@ -284,7 +284,7 @@ export default function Home() {
 
         <DivContainer className={`flex items-center gap-3 mb-10`}>
           <Input
-            defaultValue={trainScheduleInputs?.departureTime ? formatISOToCustomDatetime(trainScheduleInputs.departureTime) : ``}
+            defaultValue={trainScheduleInputs?.departureTime ? formatDatetime(trainScheduleInputs.departureTime) : ``}
             top
             className={`max-w-[220px] text-center`}
             // disabled={isPending}
@@ -296,7 +296,7 @@ export default function Home() {
           />
 
           <Input
-            defaultValue={trainScheduleInputs?.arrivalTime ? formatISOToCustomDatetime(trainScheduleInputs.arrivalTime) : ``}
+            defaultValue={trainScheduleInputs?.arrivalTime ? formatDatetime(trainScheduleInputs.arrivalTime) : ``}
             top
             className={`max-w-[220px] text-center`}
             // disabled={isPending}
@@ -329,9 +329,6 @@ export default function Home() {
   );
 
   function handleNextPagination() {
-    console.log('total === trainScheduleItems.length:', total === trainScheduleItems.length);
-    console.log('Executing  total', total);
-    console.log('Executing trainScheduleItems.length', trainScheduleItems.length);
     if (total === trainScheduleItems.length) return;
     setPage(prevState => prevState + 1);
     setNextPageLoading(true);
@@ -351,7 +348,7 @@ export default function Home() {
           {dialogContent}
         </>
       </MUIDialog>
-      <main>
+      <main className={`pb-5`}>
         <DivContainer className={`container m-auto px-8 mt-4`}>
           <NavigationDashboard />
           <DivContainer className={`mt-5 flex justify-center flex-col gap-4`}>

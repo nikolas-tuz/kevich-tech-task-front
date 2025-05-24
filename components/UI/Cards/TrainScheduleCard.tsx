@@ -6,7 +6,7 @@ import Paragraph from '@/components/UI/Typography/Paragraph';
 import BadgeButton from '@/components/UI/Buttons/BadgeButton';
 import { Tooltip } from '@mui/material';
 import ArrowIcon from '@/components/UI/Icons/ArrowIcon';
-import { formatISOToCustomDate } from '@/utils/functions/formatDate';
+import { formatDatetime } from '@/utils/functions/formatDate';
 import { formatStatus } from '@/utils/functions/formatStatus';
 
 type TrainScheduleCardType = {
@@ -52,8 +52,8 @@ export default function
           <Paragraph className={`text-sm`}>Arrival station: {arrivalStation}</Paragraph>
         </DivContainer>
         <DivContainer className={`flex flex-col gap-2 w-fit`}>
-          <BadgeButton className={`text-sm`}>Departure time: {formatISOToCustomDate(departureTime)}</BadgeButton>
-          <BadgeButton className={`text-sm`}>Arrival time: {formatISOToCustomDate(arrivalTime)}</BadgeButton>
+          <BadgeButton className={`text-sm`}>Departure time: {formatDatetime(departureTime)}</BadgeButton>
+          <BadgeButton className={`text-sm`}>Arrival time: {formatDatetime(arrivalTime)}</BadgeButton>
         </DivContainer>
         <BadgeButton
           className={`absolute top-3 right-3 bg-white`}
