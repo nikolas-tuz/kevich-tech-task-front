@@ -30,9 +30,9 @@ export function useFetchScheduleData() {
 
   function handleChangeFilter(filterOption: ActiveTrainScheduleFilterType) {
     if (activeTrainScheduleFilter !== filterOption) {
+      setPage(1);
       setActiveTrainScheduleFilter(filterOption);
       setLoading(true);
-      setPage(1);
       setTrainScheduleItems([]);
     }
   }
@@ -76,11 +76,17 @@ export function useFetchScheduleData() {
       }
     }
 
-    fetchTrainScheduleData().catch((e) => {
-      const error = e as AxiosErrorInterface;
-      setLoading(false);
-      setErrorMessage(error?.response?.data?.message || `Failed to load train schedules. Please try again later.`);
-    });
+    // Reset page and clear items when a new search term is entered
+    if (debouncedInputValue && page !== 1) {
+      setPage(1);
+      setTrainScheduleItems([]);
+    } else {
+      fetchTrainScheduleData().catch((e) => {
+        const error = e as AxiosErrorInterface;
+        setLoading(false);
+        setErrorMessage(error?.response?.data?.message || `Failed to load train schedules. Please try again later.`);
+      });
+    }
   }, [activeTrainScheduleFilter, debouncedInputValue, page]);
   return {
     loading,
