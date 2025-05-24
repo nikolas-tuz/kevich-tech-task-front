@@ -364,15 +364,9 @@ export default function Home() {
           </DivContainer>
         </DivContainer>
 
-        {!loading &&
+        {!loading && !errorMessage &&
           <>
             <DivContainer className={`flex items-center gap-3 mt-6 overflow-x-auto pb-10 px-4`}>
-              {errorMessage &&
-                <DivContainer className={`text-center m-auto mt-5`}>
-                  <Lottie animationData={LottieAnimationTrainJSON} />
-                  <Paragraph className={`text-xl`}>{errorMessage}</Paragraph>
-                </DivContainer>
-              }
 
               {trainScheduleItems?.length === 0 &&
                 <DivContainer className={`text-center m-auto mt-5`}>
@@ -401,6 +395,13 @@ export default function Home() {
           </>
         }
         {loading && <SkeletonCardLoading />}
+
+        {errorMessage &&
+          <DivContainer className={`text-center m-auto mt-5 flex items-center justify-center flex-col`}>
+            <Lottie className={`w-96 h-96`} animationData={LottieAnimationTrainJSON} />
+            <Paragraph className={`text-xl`}>{errorMessage}</Paragraph>
+          </DivContainer>
+        }
         <DivContainer
           className={`mt-4 container m-auto px-6`}>
           <button onClick={() => {
