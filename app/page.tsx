@@ -29,6 +29,7 @@ import axios from 'axios';
 import { getAccessToken } from '@/utils/auth/getAccessToken';
 import { CircularProgress } from '@mui/material';
 import Lottie from 'lottie-react';
+import { THROTTLE_STATUS_CHANGES_IN_MS } from '@/utils/data/global-variables';
 
 export type ActiveTrainScheduleFilterType =
   `all`
@@ -345,7 +346,7 @@ export default function Home() {
       clearTimeout(timer.current!); // Clear the timer after the throttle period
       timer.current = null; // Reset the timer reference
       setUseTrottleOnBadges(false);
-    }, 700); // Throttle period
+    }, THROTTLE_STATUS_CHANGES_IN_MS); // Throttle period
   }
 
   return (

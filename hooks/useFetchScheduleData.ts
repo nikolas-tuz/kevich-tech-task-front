@@ -5,6 +5,7 @@ import { ActiveTrainScheduleFilterType } from '@/app/page';
 import axios from 'axios';
 import { getAccessToken } from '@/utils/auth/getAccessToken';
 import { AxiosErrorInterface, AxiosResponseInterface } from '@/utils/interfaces/AxiosResponse.interface';
+import { INPUT_VAL_DEBOUNCE_IN_MS, SCHEDULE_LIMIT } from '@/utils/data/global-variables';
 
 function mergeAndDeduplicateItems(
   existingItems: TrainScheduleDataType[],
@@ -15,14 +16,14 @@ function mergeAndDeduplicateItems(
 }
 
 export function useFetchScheduleData() {
-  const limit = 5;
+  const limit = SCHEDULE_LIMIT;
 
   const [page, setPage] = useState(1);
   const [nextPageLoading, setNextPageLoading] = useState(false);
 
   const [total, setTotal] = useState<number>(0);
   const [inputValue, setInputValue] = useState(``);
-  const debouncedInputValue = useDebounce(inputValue, 400); // Use the custom hook
+  const debouncedInputValue = useDebounce(inputValue, INPUT_VAL_DEBOUNCE_IN_MS); // Use the custom hook
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(``);
   const [trainScheduleItems, setTrainScheduleItems] = useState<TrainScheduleDataType[]>([]);
