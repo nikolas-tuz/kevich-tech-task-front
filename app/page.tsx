@@ -4,9 +4,8 @@ import NavigationDashboard from '@/components/pages/TrainDashboard/NavigationDas
 import DivContainer from '@/components/UI/Containers/DivContainer';
 import SecondaryHeading from '@/components/UI/Typography/SecondaryHeading';
 import SearchInput from '@/components/UI/FormControls/SearchInput';
-import { FormEvent, ReactNode, useEffect, useState } from 'react';
+import { FormEvent, ReactNode, useState } from 'react';
 import BadgeButton from '@/components/UI/Buttons/BadgeButton';
-import trainScheduleData, { TrainScheduleDataType } from '@/utils/data/dummy-data';
 import TrainScheduleCard from '@/components/UI/Cards/TrainScheduleCard';
 import SkeletonCardLoading from '@/components/UI/Cards/SkeletonCardLoading';
 import MUIDialog from '@/components/UI/Dialogs/MUIDialog';
@@ -24,8 +23,12 @@ import {
 import SnackbarMUI from '@/components/UI/Snackbars/SnackbarMUI';
 import { trainScheduleSchema } from '@/utils/schemas/train-schedule.schema';
 import { useHandleDialogState } from '@/hooks/useHandleDialogState';
-import { undefined } from 'zod';
 import { useHandleSnackbarState } from '@/hooks/useHandleSnackbarState';
+import { useFetchScheduleData } from '@/hooks/useFetchScheduleData';
+import MUIBackdrop from '@/components/UI/Backdrops/MUIBackdrop';
+import { AxiosErrorInterface, AxiosResponseInterface } from '@/utils/interfaces/AxiosResponse.interface';
+import axios from 'axios';
+import { getAccessToken } from '@/utils/auth/getAccessToken';
 
 export type ActiveTrainScheduleFilterType =
   `all`
@@ -82,6 +85,7 @@ type TrainNumberFromForm = {
 }
 
 type TrainScheduleInputsType = {
+  id: string;
   departureStation: string;
   arrivalStation: string;
   departureTime: string; // ISO 8601 datetime format
@@ -90,39 +94,41 @@ type TrainScheduleInputsType = {
 };
 
 export default function Home() {
-  const [inputValue, setInputValue] = useState(``);
+  const [backdropState, setBackdropState] = useState(false);
+
   const { handleDialogState, dialogMode, dialogOpen, setDialogOpen, setDialogMode } = useHandleDialogState();
   const { handleSnackbarState, setSnackbarState, snackbarState, snackbarData } = useHandleSnackbarState();
+  const {
+    loading,
+    trainScheduleItems,
+    setTrainScheduleItems,
+    activeTrainScheduleFilter,
+    setInputValue,
+    handleChangeFilter
+  } = useFetchScheduleData();
 
-  const [trainScheduleInputs, setTrainScheduleInputs] = useState<TrainScheduleInputsType & TrainNumberFromDBType>();
+  const defaultInputs: TrainScheduleInputsType & TrainNumberFromDBType = {
+    id: ``,
+    trainNumber: 0,
+    status: ``,
+    departureStation: ``,
+    departureTime: ``,
+    arrivalStation: ``,
+    arrivalTime: ``
+  };
 
-  const [loading, setLoading] = useState(true);
-  const [trainScheduleItems, setTrainScheduleItems] = useState<TrainScheduleDataType[]>();
-
-  const [activeTrainScheduleFilter, setActiveTrainScheduleFilter] = useState<ActiveTrainScheduleFilterType>(`all`);
-
-  useEffect(() => {
-    new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
-      setLoading(false);
-      setTrainScheduleItems(trainScheduleData);
-    });
-  }, []);
+  const [trainScheduleInputs, setTrainScheduleInputs] = useState<TrainScheduleInputsType & TrainNumberFromDBType>(defaultInputs);
 
   function handleDialogStateForEdit(id: string, state: boolean) {
     setDialogMode(`Edit`);
-    const scheduleData = trainScheduleData.find(schedule => schedule.id === id);
-    console.info('Executing scheduleData', scheduleData);
-    setTrainScheduleInputs(scheduleData);
+    const scheduleData = trainScheduleItems?.find(schedule => schedule.id === id);
+
+    setTrainScheduleInputs(scheduleData!);
     setDialogOpen(state);
   }
 
-  function handleChangeFilter(filterOption: ActiveTrainScheduleFilterType) {
-    setActiveTrainScheduleFilter(filterOption);
-    console.info('inputValue:', inputValue);
-    /* TODO: FETCH THE DATA FROM EXISTING DATA filtered. */
-  }
 
-  function handleFormSubmission(e: FormEvent<HTMLFormElement>) {
+  async function handleFormSubmission(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const currObject = e.currentTarget;
     const formData = new FormData(currObject);
@@ -146,29 +152,76 @@ export default function Home() {
     results.departureTime = formatCustomDatetimeToISO(results.departureTime);
     results.arrivalTime = formatCustomDatetimeToISO(results.arrivalTime);
 
-    const validate = trainScheduleSchema.safeParse({
+    const finalResults = {
       trainNumber: Number(results.trainNumber),
       departureStation: results.departureStation,
       arrivalStation: results.arrivalStation,
       departureTime: results.departureTime,
       arrivalTime: results.arrivalTime,
       status: results.status
-    });
+    };
+
+    const validate = trainScheduleSchema.safeParse(finalResults);
 
     if (!validate.success) {
       handleSnackbarState(`error`, validate.error.errors[0].message);
       return;
     }
 
-    console.info('results:', results);
-
     if (dialogMode === `Edit`) {
-      /* TODO: USE PUT METHOD TO EDIT THE CORRESPONDING SCHEDULE */
+      try {
+        async function handleEditTrainSchedule() {
+
+          if (!trainScheduleInputs?.id) {
+            handleSnackbarState(`error`, `Failed to determine the id of train schedule. Please retry,`);
+            return;
+          }
+          setBackdropState(true);
+
+          const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/train-schedule/${trainScheduleInputs!.id}`,
+            finalResults,
+            {
+              headers: {
+                'Authorization': `Bearer ${getAccessToken()}`
+              }
+            }).then((res) => res.data as AxiosResponseInterface);
+
+          if (response.status === `success`) {
+            handleSnackbarState(`success`, `The Train Schedule for ${trainScheduleInputs.trainNumber} was successfully updated.`);
+            setDialogOpen(false);
+
+            const updatedSchedulesItems = [...trainScheduleItems!];
+
+            const findIndex = updatedSchedulesItems.findIndex(schedule => schedule.id === trainScheduleInputs.id);
+
+            // performing update on the UI.
+            if (findIndex > -1) {
+              updatedSchedulesItems[findIndex] = { ...finalResults, id: trainScheduleInputs.id };
+              setTrainScheduleItems(updatedSchedulesItems);
+            }
+
+            return;
+          } else {
+            handleSnackbarState(`error`, `Failed to update the train schedule for ${finalResults.trainNumber} train.`);
+          }
+
+        }
+
+        await handleEditTrainSchedule();
+
+      } catch (e) {
+        const error = e as AxiosErrorInterface;
+        handleSnackbarState(`error`, error?.response?.data?.message || `Failed to update the train schedule for ${finalResults.trainNumber} train.`);
+
+      } finally {
+        setBackdropState(false);
+      }
       return;
     }
 
     if (dialogMode === `Create`) {
-      /* TODO: USE POST METHOD TO CREATE A NEW SCHEDULE; */
+      handleSnackbarState(`success`, `New Train Schedule <12> was successfully created.`);
+      setDialogOpen(false);
       return;
     }
 
@@ -263,6 +316,7 @@ export default function Home() {
 
   return (
     <>
+      <MUIBackdrop state={{ open: backdropState, setOpen: setBackdropState }} />
       <SnackbarMUI
         position={{ v: `bottom`, h: `center` }}
         severity={snackbarData?.severity}
@@ -308,13 +362,8 @@ export default function Home() {
               className={`mt-4 container m-auto px-6`}>
               <button onClick={() => {
                 handleDialogState(`Create`, true);
+                setTrainScheduleInputs(defaultInputs);
 
-                // The error would NOT occur.
-                // The point of this line is to remove input data
-                // so you won't see the data of the previous schedule.
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error
-                setTrainScheduleInputs(undefined);
               }} className={`border-1 cursor-pointer 
               border-dashed border-zinc-300 w-[362px] h-36 rounded-lg
               transition-all duration-300 hover:text-white hover:bg-zinc-950
