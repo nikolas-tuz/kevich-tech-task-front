@@ -16,7 +16,15 @@ import Paragraph from '@/components/UI/Typography/Paragraph';
 import { AvailableStatusesEnum } from '@/utils/enums/available-statuses.enum';
 import Select from '@/components/UI/FormControls/Select';
 import { formatStatus } from '@/utils/functions/formatStatus';
-import { formatISOToCustomDatetime } from '@/utils/functions/formatISOToDatetime';
+import {
+  formatCustomDatetimeToISO,
+  formatISOToCustomDatetime,
+  isValidCustomDatetimeFormat
+} from '@/utils/functions/formatISOToDatetime';
+import SnackbarMUI, { SnackbarData } from '@/components/UI/Snackbars/SnackbarMUI';
+import { OverridableStringUnion } from '@mui/types';
+import { AlertColor, AlertPropsColorOverrides } from '@mui/material';
+import { trainScheduleSchema } from '@/utils/schemas/train-schedule.schema';
 
 export type ActiveTrainScheduleFilterType =
   `all`
@@ -63,22 +71,34 @@ const availableFilterOptions: AvailableFilterOptionsType[] = [
   }
 ];
 
+
 type DialogModeType = `Edit` | `Create`;
 
-type TrainScheduleInputsType = {
+type TrainNumberFromDBType = {
   trainNumber: number;
+}
+
+type TrainNumberFromForm = {
+  trainNumber: string;
+}
+
+type TrainScheduleInputsType = {
   departureStation: string;
   arrivalStation: string;
   departureTime: string; // ISO 8601 datetime format
   arrivalTime: string;   // ISO 8601 datetime format
   status: string;
 };
+
 export default function Home() {
   const [inputValue, setInputValue] = useState(``);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<DialogModeType>();
 
-  const [trainScheduleInputs, setTrainScheduleInputs] = useState<TrainScheduleInputsType>();
+  const [snackbarState, setSnackbarState] = useState<boolean>(false);
+  const [snackbarData, setSnackbarData] = useState<SnackbarData>();
+
+  const [trainScheduleInputs, setTrainScheduleInputs] = useState<TrainScheduleInputsType & TrainNumberFromDBType>();
 
   const [loading, setLoading] = useState(true);
   const [trainScheduleItems, setTrainScheduleItems] = useState<TrainScheduleDataType[]>();
@@ -109,18 +129,65 @@ export default function Home() {
   function handleChangeFilter(filterOption: ActiveTrainScheduleFilterType) {
     setActiveTrainScheduleFilter(filterOption);
     console.info('inputValue:', inputValue);
-    /* TODO: FETCH THE DATA FROM DB filtered. */
+    /* TODO: FETCH THE DATA FROM EXISTING DATA filtered. */
+  }
+
+  function handleSnackbarState(severity: OverridableStringUnion<AlertColor, AlertPropsColorOverrides>,
+                               message: string, state = true) {
+    setSnackbarState(state);
+    setSnackbarData({ severity, message });
   }
 
   function handleFormSubmission(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const currObject = e.currentTarget;
     const formData = new FormData(currObject);
-    const results = Object.fromEntries(formData.entries());
+    const results = Object.fromEntries(formData.entries()) as TrainScheduleInputsType & TrainNumberFromForm;
     // resetting the form
     // currObject.reset();
     // output
+    if (!dialogMode) {
+      handleSnackbarState(`error`, `Dialog state is not opened. Please retry.`);
+      return;
+    }
+
+    if (!isValidCustomDatetimeFormat(results.departureTime)) {
+      handleSnackbarState(`error`, `Departure Time is not DD/MM/YYYY, HH:mm format.`);
+      return;
+    }
+
+    if (!isValidCustomDatetimeFormat(results.arrivalTime)) {
+      handleSnackbarState(`error`, `Arrival Time is not DD/MM/YYYY, HH:mm format.`);
+      return;
+    }
+
+    results.departureTime = formatCustomDatetimeToISO(results.departureTime);
+    results.arrivalTime = formatCustomDatetimeToISO(results.arrivalTime);
+
+    const validate = trainScheduleSchema.safeParse({
+      trainNumber: Number(results.trainNumber),
+      departureStation: results.departureStation,
+      arrivalStation: results.arrivalStation,
+      departureTime: results.departureTime,
+      arrivalTime: results.arrivalTime,
+      status: results.status
+    });
+
+    if (!validate.success) {
+      handleSnackbarState(`error`, validate.error.errors[0].message);
+      return;
+    }
+
     console.info('results:', results);
+
+    if (dialogMode === `Edit`) {
+      return;
+    }
+
+    if (dialogMode === `Create`) {
+      return;
+    }
+
   }
 
   const dialogContent: ReactNode = (
@@ -212,6 +279,12 @@ export default function Home() {
 
   return (
     <>
+      <SnackbarMUI
+        position={{ v: `bottom`, h: `center` }}
+        severity={snackbarData?.severity}
+        message={snackbarData?.message}
+        state={{ open: snackbarState, setOpen: setSnackbarState }}
+      />
       <MUIDialog modalState={{ open: dialogOpen, setOpen: setDialogOpen }}>
         <>
           {dialogContent}

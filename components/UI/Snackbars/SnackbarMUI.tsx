@@ -12,10 +12,17 @@ export type SnackbarData = {
 type SnackbarMUIType = {
   state: { open: boolean; setOpen: Dispatch<SetStateAction<boolean>> }
   autoHideDurationInSecs?: number;
+  position?: { h: 'left' | 'center' | 'right'; v: `top` | `bottom`; }
   // children: ReactNode;
 } & SnackbarData;
 
-export default function SnackbarMUI({ state, autoHideDurationInSecs = 6, message, severity }: SnackbarMUIType) {
+export default function SnackbarMUI({
+                                      state,
+                                      autoHideDurationInSecs = 6,
+                                      position = { v: `bottom`, h: `left` },
+                                      message,
+                                      severity
+                                    }: SnackbarMUIType) {
   const { open, setOpen } = state;
 
   const handleClose = (
@@ -30,7 +37,9 @@ export default function SnackbarMUI({ state, autoHideDurationInSecs = 6, message
   };
 
   return (
-    <Snackbar open={open} autoHideDuration={autoHideDurationInSecs * 1000} onClose={handleClose}>
+    <Snackbar
+      anchorOrigin={{ vertical: position.v, horizontal: position.h }}
+      open={open} autoHideDuration={autoHideDurationInSecs * 1000} onClose={handleClose}>
       <Alert
         onClose={handleClose}
         severity={severity}
