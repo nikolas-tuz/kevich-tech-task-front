@@ -22,6 +22,7 @@ import { registerSchema } from '@/utils/schemas/register.schema';
 import axios from 'axios';
 import { AxiosErrorInterface, AxiosResponseInterface } from '@/utils/interfaces/AxiosResponse.interface';
 import { logIn } from '@/utils/auth/logIn';
+import MUIBackdrop from '@/components/UI/Backdrops/MUIBackdrop';
 
 type AuthStateType = `login` | `register`;
 
@@ -31,6 +32,7 @@ export default function AuthPage(/*{}: AuthPageType*/) {
   const [snackbarData, setSnackbarData] = useState<SnackbarData>();
   const [errorMessage, setErrorMessage] = useState(``);
   const [isPending, startTransition] = useTransition();
+  const [backdropState, setBackdropState] = useState(false);
 
   useEffect(() => {
     if (isWindowDefined()) {
@@ -66,6 +68,7 @@ export default function AuthPage(/*{}: AuthPageType*/) {
       return;
     }
 
+    setBackdropState(true);
     startTransition(async () => {
       try {
         const login = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`, {
@@ -82,6 +85,7 @@ export default function AuthPage(/*{}: AuthPageType*/) {
           setErrorMessage(login.data?.error || `Failed to log the user. Please try again.`);
         }
       } catch (e) {
+        setBackdropState(false);
         const error = e as AxiosErrorInterface;
         setErrorMessage(error?.response?.data?.message || `Failed to log the user. Please try again.`);
       }
@@ -110,13 +114,18 @@ export default function AuthPage(/*{}: AuthPageType*/) {
       setErrorMessage(validate.error.errors[0].message);
       return;
     }
+    setBackdropState(true);
 
     /* TODO: LOG THE USER IN
     *   first, use the API to  create a user, and generate a token. Then assign JWT to cookie */
 
     startTransition(async () => {
-      // simulate loading for 2 secs
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      try {
+        // simulate loading for 2 secs
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (e) {
+          console.error(e);
+      }
     });
 
     // resetting the form
@@ -129,6 +138,7 @@ export default function AuthPage(/*{}: AuthPageType*/) {
 
   return (
     <>
+      <MUIBackdrop state={{ open: backdropState, setOpen: setBackdropState }} />
       <SnackbarMUI
         severity={snackbarData?.severity}
         message={snackbarData?.message}
