@@ -29,10 +29,12 @@ export function useFetchScheduleData() {
   const [activeTrainScheduleFilter, setActiveTrainScheduleFilter] = useState<ActiveTrainScheduleFilterType>(`all`);
 
   function handleChangeFilter(filterOption: ActiveTrainScheduleFilterType) {
-    setActiveTrainScheduleFilter(filterOption);
-    setLoading(true);
-    setPage(1);
-    setTrainScheduleItems([]);
+    if (activeTrainScheduleFilter !== filterOption) {
+      setActiveTrainScheduleFilter(filterOption);
+      setLoading(true);
+      setPage(1);
+      setTrainScheduleItems([]);
+    }
   }
 
   useEffect(() => {
@@ -57,10 +59,11 @@ export function useFetchScheduleData() {
         if (trainSchedules?.status === `success`) {
           setTrainScheduleItems(prevState => {
             const newItems = trainSchedules.data.trainSchedules as TrainScheduleDataType[];
-            return mergeAndDeduplicateItems(prevState, newItems);
+            return mergeAndDeduplicateItems(page === 1 ? [] : prevState, newItems); // Preserve previous items unless it's the first page
           });
 
           setTotal(trainSchedules.data.total); // Update total count
+          if (errorMessage) setErrorMessage(``);
         } else {
           setErrorMessage(trainSchedules?.data?.error || `Failed to load train schedules. Please try again later.`);
         }
@@ -73,15 +76,12 @@ export function useFetchScheduleData() {
       }
     }
 
-    // Clear items when debouncedInputValue changes
-    setTrainScheduleItems([]);
     fetchTrainScheduleData().catch((e) => {
       const error = e as AxiosErrorInterface;
       setLoading(false);
       setErrorMessage(error?.response?.data?.message || `Failed to load train schedules. Please try again later.`);
     });
   }, [activeTrainScheduleFilter, debouncedInputValue, page]);
-
   return {
     loading,
     errorMessage,

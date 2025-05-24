@@ -108,7 +108,8 @@ export default function Home() {
     setPage,
     setTrainScheduleItems,
     setInputValue,
-    handleChangeFilter
+    handleChangeFilter,
+    errorMessage
   } = useFetchScheduleData();
 
   const defaultInputs: TrainScheduleInputsType & TrainNumberFromDBType = {
@@ -366,10 +367,17 @@ export default function Home() {
         {!loading &&
           <>
             <DivContainer className={`flex items-center gap-3 mt-6 overflow-x-auto pb-10 px-4`}>
+              {errorMessage &&
+                <DivContainer className={`text-center m-auto mt-5`}>
+                  <Lottie animationData={LottieAnimationTrainJSON} />
+                  <Paragraph className={`text-xl`}>{errorMessage}</Paragraph>
+                </DivContainer>
+              }
+
               {trainScheduleItems?.length === 0 &&
                 <DivContainer className={`text-center m-auto mt-5`}>
                   <Lottie animationData={LottieAnimationTrainJSON} />
-                  <Paragraph className={`text-xl`}>No items to be seen! :D</Paragraph>
+                  <Paragraph className={`text-xl`}>No schedules to be seen! :D</Paragraph>
                 </DivContainer>}
               {trainScheduleItems?.map((schedule) =>
                 <TrainScheduleCard
