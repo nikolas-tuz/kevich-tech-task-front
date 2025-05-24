@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { TrainScheduleDataType } from '@/utils/data/dummy-data';
 import { ActiveTrainScheduleFilterType } from '@/app/page';
 import axios from 'axios';
@@ -13,7 +14,6 @@ function mergeAndDeduplicateItems(
   return Array.from(itemMap.values());
 }
 
-
 export function useFetchScheduleData() {
   const limit = 5;
 
@@ -22,6 +22,7 @@ export function useFetchScheduleData() {
 
   const [total, setTotal] = useState<number>(0);
   const [inputValue, setInputValue] = useState(``);
+  const debouncedInputValue = useDebounce(inputValue, 400); // Use the custom hook
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(``);
   const [trainScheduleItems, setTrainScheduleItems] = useState<TrainScheduleDataType[]>([]);
@@ -39,6 +40,10 @@ export function useFetchScheduleData() {
 
     if (activeTrainScheduleFilter !== `all`) {
       url += `&status=${activeTrainScheduleFilter}`;
+    }
+
+    if (debouncedInputValue) {
+      url += `&searchTerm=${debouncedInputValue.toLowerCase()}`;
     }
 
     async function fetchTrainScheduleData() {
@@ -68,12 +73,14 @@ export function useFetchScheduleData() {
       }
     }
 
+    // Clear items when debouncedInputValue changes
+    setTrainScheduleItems([]);
     fetchTrainScheduleData().catch((e) => {
       const error = e as AxiosErrorInterface;
       setLoading(false);
       setErrorMessage(error?.response?.data?.message || `Failed to load train schedules. Please try again later.`);
     });
-  }, [activeTrainScheduleFilter, page]);
+  }, [activeTrainScheduleFilter, debouncedInputValue, page]);
 
   return {
     loading,

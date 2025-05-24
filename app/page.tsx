@@ -17,11 +17,7 @@ import Paragraph from '@/components/UI/Typography/Paragraph';
 import { AvailableStatusesEnum } from '@/utils/enums/available-statuses.enum';
 import Select from '@/components/UI/FormControls/Select';
 import { formatStatus } from '@/utils/functions/formatStatus';
-import {
-  formatCustomDatetimeToISO,
-  formatDatetime,
-  isValidCustomDatetimeFormat
-} from '@/utils/functions/formatDate';
+import { formatCustomDatetimeToISO, formatDatetime, isValidCustomDatetimeFormat } from '@/utils/functions/formatDate';
 import SnackbarMUI from '@/components/UI/Snackbars/SnackbarMUI';
 import { trainScheduleSchema } from '@/utils/schemas/train-schedule.schema';
 import { useHandleDialogState } from '@/hooks/useHandleDialogState';
