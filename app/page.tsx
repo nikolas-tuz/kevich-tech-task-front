@@ -112,7 +112,8 @@ export default function Home() {
     setTrainScheduleItems,
     setInputValue,
     handleChangeFilter,
-    errorMessage
+    errorMessage,
+    setTotal
   } = useFetchScheduleData();
 
   const defaultInputs: TrainScheduleInputsType & TrainNumberFromDBType = {
@@ -266,6 +267,7 @@ export default function Home() {
             if (findIndex > -1) {
               updatedSchedulesItems.splice(findIndex, 1);
               setTrainScheduleItems(updatedSchedulesItems);
+              setTotal(prevState => prevState - 1);
             }
 
             return;

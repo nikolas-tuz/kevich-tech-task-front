@@ -100,6 +100,7 @@ export function useFetchScheduleData() {
     setInputValue,
     handleChangeFilter,
     setPage,
-    setNextPageLoading
+    setNextPageLoading,
+    setTotal
   };
 }
