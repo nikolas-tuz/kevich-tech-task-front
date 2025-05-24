@@ -19,6 +19,9 @@ import Button from '@/components/UI/Buttons/Button';
 import { loginSchema } from '@/utils/schemas/login.schema';
 import { CircularProgress } from '@mui/material';
 import { registerSchema } from '@/utils/schemas/register.schema';
+import axios from 'axios';
+import { AxiosErrorInterface, AxiosResponseInterface } from '@/utils/interfaces/AxiosResponse.interface';
+import { logIn } from '@/utils/auth/logIn';
 
 type AuthStateType = `login` | `register`;
 
@@ -26,7 +29,7 @@ export default function AuthPage(/*{}: AuthPageType*/) {
   const [authState, setAuthState] = useState<AuthStateType>(`login`);
   const [snackbarState, setSnackbarState] = useState<boolean>(false);
   const [snackbarData, setSnackbarData] = useState<SnackbarData>();
-  const [errorMessage, setErrorMessage] = useState(`Failed to log in! Please try again.`);
+  const [errorMessage, setErrorMessage] = useState(``);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -63,18 +66,26 @@ export default function AuthPage(/*{}: AuthPageType*/) {
       return;
     }
 
-    /* TODO: LOG THE USER IN
-    *   first, use the API to generate a token. Then assign JWT to cookie */
-
     startTransition(async () => {
-      // simulate loading for 2 secs
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    });
+      try {
+        const login = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`, {
+          email: results.email,
+          password: results.password
+        }).then(res => res.data as AxiosResponseInterface);
 
-    // resetting the form
-    // currObject.reset();
-    // output
-    console.log('results:', results);
+        if (login?.status === `success`
+          && login?.data?.accessToken
+          && login?.data?.user?.email
+        ) {
+          logIn(login.data.accessToken, login.data.user.email);
+        } else {
+          setErrorMessage(login.data?.error || `Failed to log the user. Please try again.`);
+        }
+      } catch (e) {
+        const error = e as AxiosErrorInterface;
+        setErrorMessage(error?.response?.data?.message || `Failed to log the user. Please try again.`);
+      }
+    });
   }
 
   function handleRegister(e: FormEvent<HTMLFormElement>) {
