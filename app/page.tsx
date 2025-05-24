@@ -96,7 +96,7 @@ type TrainScheduleInputsType = {
 
 export default function Home() {
   const [backdropState, setBackdropState] = useState(false);
-  const [useTrottleOnBadges, setUseTrottleOnBadges] = useState(false);
+  const [useThrottleOnBadges, setUseThrottleOnBadges] = useState(false);
   const timer = useRef<NodeJS.Timeout>(null);
 
   const { handleDialogState, dialogMode, dialogOpen, setDialogOpen, setDialogMode } = useHandleDialogState();
@@ -339,13 +339,13 @@ export default function Home() {
   function handleChangeStatusFilter(option: ActiveTrainScheduleFilterType) {
     if (timer?.current || activeTrainScheduleFilter === option) return; // Prevent multiple calls within the throttle period
 
-    setUseTrottleOnBadges(true);
+    setUseThrottleOnBadges(true);
     handleChangeFilter(option); // Execute the filter change immediately
 
     timer.current = setTimeout(() => {
       clearTimeout(timer.current!); // Clear the timer after the throttle period
       timer.current = null; // Reset the timer reference
-      setUseTrottleOnBadges(false);
+      setUseThrottleOnBadges(false);
     }, THROTTLE_STATUS_CHANGES_IN_MS); // Throttle period
   }
 
@@ -374,7 +374,7 @@ export default function Home() {
                 <BadgeButton
                   key={index}
                   className={`disabled:opacity-65`}
-                  disabled={useTrottleOnBadges}
+                  disabled={useThrottleOnBadges}
                   onClick={() => handleChangeStatusFilter(option.filter)}
                   active={activeTrainScheduleFilter === option.filter}>
                   {option.label}
