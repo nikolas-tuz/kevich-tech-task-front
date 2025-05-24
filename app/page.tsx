@@ -233,6 +233,45 @@ export default function Home() {
     }
 
     if (dialogMode === `Create`) {
+      startTransition(async () => {
+        try {
+          async function handleCreateTrainSchedule() {
+            setBackdropState(true);
+
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/train-schedule`,
+              finalResults,
+              {
+                headers: {
+                  'Authorization': `Bearer ${getAccessToken()}`
+                }
+              }).then((res) => res.data as AxiosResponseInterface);
+
+            if (response.status === `success`) {
+              handleSnackbarState(`success`, `The New Train Schedule <${response?.data?.trainSchedule?.trainNumber}> was successfully created.`);
+              setDialogOpen(false);
+
+              const updatedSchedulesItems = [...trainScheduleItems!];
+              updatedSchedulesItems.unshift(response.data.trainSchedule);
+              setTrainScheduleItems(updatedSchedulesItems);
+              setTotal(prevState => prevState + 1);
+
+              return;
+            } else {
+              handleSnackbarState(`error`, `Failed to created the schedule. Please retry.`);
+            }
+
+          }
+
+          await handleCreateTrainSchedule();
+
+        } catch (e) {
+          const error = e as AxiosErrorInterface;
+          handleSnackbarState(`error`, error?.response?.data?.message || `Failed to update the train schedule for ${finalResults.trainNumber} train.`);
+
+        } finally {
+          setBackdropState(false);
+        }
+      });
     }
 
   }
@@ -256,7 +295,7 @@ export default function Home() {
             }).then((res) => res.data as AxiosResponseInterface);
 
           if (response.status === `success`) {
-            handleSnackbarState(`warning`, `The Train Schedule for ${trainScheduleInputs.trainNumber} was successfully deleted.`);
+            handleSnackbarState(`success`, `The Train Schedule for ${trainScheduleInputs.trainNumber} was successfully deleted.`);
             setDialogOpen(false);
 
             const updatedSchedulesItems = [...trainScheduleItems!];
@@ -364,7 +403,7 @@ export default function Home() {
           </Select>
         </DivContainer>
         <DivContainer className={`flex items-center gap-3`}>
-          <Button disabled={isPending} className={`w-full`}>
+          <Button disabled={isPending} className={`w-full disabled:animate-pulse`}>
             {isPending && dialogMode === `Edit` ? <CircularProgress size={20}></CircularProgress> : `Save`}
           </Button>
 
