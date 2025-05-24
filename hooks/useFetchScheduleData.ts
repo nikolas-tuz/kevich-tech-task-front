@@ -5,26 +5,41 @@ import axios from 'axios';
 import { getAccessToken } from '@/utils/auth/getAccessToken';
 import { AxiosErrorInterface, AxiosResponseInterface } from '@/utils/interfaces/AxiosResponse.interface';
 
+function mergeAndDeduplicateItems(
+  existingItems: TrainScheduleDataType[],
+  newItems: TrainScheduleDataType[]
+): TrainScheduleDataType[] {
+  const itemMap = new Map(existingItems.concat(newItems).map(item => [item.id, item]));
+  return Array.from(itemMap.values());
+}
+
+
 export function useFetchScheduleData() {
   const limit = 5;
+
   const [page, setPage] = useState(1);
+  const [nextPageLoading, setNextPageLoading] = useState(false);
 
+  const [total, setTotal] = useState<number>(0);
   const [inputValue, setInputValue] = useState(``);
-
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(``);
-
-  const [trainScheduleItems, setTrainScheduleItems] = useState<TrainScheduleDataType[]>();
+  const [trainScheduleItems, setTrainScheduleItems] = useState<TrainScheduleDataType[]>([]);
   const [activeTrainScheduleFilter, setActiveTrainScheduleFilter] = useState<ActiveTrainScheduleFilterType>(`all`);
 
   function handleChangeFilter(filterOption: ActiveTrainScheduleFilterType) {
     setActiveTrainScheduleFilter(filterOption);
-    console.info('inputValue:', inputValue);
-    /* TODO: FETCH THE DATA FROM EXISTING DATA filtered. */
+    setLoading(true);
+    setPage(1);
+    setTrainScheduleItems([]);
   }
 
   useEffect(() => {
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/train-schedule?page=${page}&limit=${limit}`;
+    let url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/train-schedule?page=${page}&limit=${limit}`;
+
+    if (activeTrainScheduleFilter !== `all`) {
+      url += `&status=${activeTrainScheduleFilter}`;
+    }
 
     async function fetchTrainScheduleData() {
       try {
@@ -35,16 +50,21 @@ export function useFetchScheduleData() {
         }).then(res => res.data as AxiosResponseInterface);
 
         if (trainSchedules?.status === `success`) {
-          setTrainScheduleItems(trainSchedules.data.trainSchedules);
+          setTrainScheduleItems(prevState => {
+            const newItems = trainSchedules.data.trainSchedules as TrainScheduleDataType[];
+            return mergeAndDeduplicateItems(prevState, newItems);
+          });
+
+          setTotal(trainSchedules.data.total); // Update total count
         } else {
           setErrorMessage(trainSchedules?.data?.error || `Failed to load train schedules. Please try again later.`);
         }
       } catch (e) {
         const error = e as AxiosErrorInterface;
         setErrorMessage(error?.response?.data?.message || `Failed to load train schedules. Please try again later.`);
-        console.error(e);
       } finally {
         setLoading(false);
+        setNextPageLoading(false);
       }
     }
 
@@ -53,15 +73,19 @@ export function useFetchScheduleData() {
       setLoading(false);
       setErrorMessage(error?.response?.data?.message || `Failed to load train schedules. Please try again later.`);
     });
-  }, [page]);
+  }, [activeTrainScheduleFilter, page]);
 
   return {
     loading,
     errorMessage,
     trainScheduleItems,
     activeTrainScheduleFilter,
+    total,
+    nextPageLoading,
     setTrainScheduleItems,
     setInputValue,
-    handleChangeFilter
+    handleChangeFilter,
+    setPage,
+    setNextPageLoading
   };
-} 
+}

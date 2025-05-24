@@ -4,7 +4,7 @@ import NavigationDashboard from '@/components/pages/TrainDashboard/NavigationDas
 import DivContainer from '@/components/UI/Containers/DivContainer';
 import SecondaryHeading from '@/components/UI/Typography/SecondaryHeading';
 import SearchInput from '@/components/UI/FormControls/SearchInput';
-import { FormEvent, ReactNode, useState } from 'react';
+import { FormEvent, ReactNode, useState, useTransition } from 'react';
 import BadgeButton from '@/components/UI/Buttons/BadgeButton';
 import TrainScheduleCard from '@/components/UI/Cards/TrainScheduleCard';
 import SkeletonCardLoading from '@/components/UI/Cards/SkeletonCardLoading';
@@ -29,6 +29,7 @@ import MUIBackdrop from '@/components/UI/Backdrops/MUIBackdrop';
 import { AxiosErrorInterface, AxiosResponseInterface } from '@/utils/interfaces/AxiosResponse.interface';
 import axios from 'axios';
 import { getAccessToken } from '@/utils/auth/getAccessToken';
+import { CircularProgress } from '@mui/material';
 
 export type ActiveTrainScheduleFilterType =
   `all`
@@ -101,8 +102,12 @@ export default function Home() {
   const {
     loading,
     trainScheduleItems,
-    setTrainScheduleItems,
     activeTrainScheduleFilter,
+    total,
+    nextPageLoading,
+    setNextPageLoading,
+    setPage,
+    setTrainScheduleItems,
     setInputValue,
     handleChangeFilter
   } = useFetchScheduleData();
@@ -118,6 +123,8 @@ export default function Home() {
   };
 
   const [trainScheduleInputs, setTrainScheduleInputs] = useState<TrainScheduleInputsType & TrainNumberFromDBType>(defaultInputs);
+
+  const [isPending, startTransition] = useTransition();
 
   function handleDialogStateForEdit(id: string, state: boolean) {
     setDialogMode(`Edit`);
@@ -169,53 +176,55 @@ export default function Home() {
     }
 
     if (dialogMode === `Edit`) {
-      try {
-        async function handleEditTrainSchedule() {
+      startTransition(async () => {
+        try {
+          async function handleEditTrainSchedule() {
 
-          if (!trainScheduleInputs?.id) {
-            handleSnackbarState(`error`, `Failed to determine the id of train schedule. Please retry,`);
-            return;
-          }
-          setBackdropState(true);
+            if (!trainScheduleInputs?.id) {
+              handleSnackbarState(`error`, `Failed to determine the id of train schedule. Please retry,`);
+              return;
+            }
+            setBackdropState(true);
 
-          const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/train-schedule/${trainScheduleInputs!.id}`,
-            finalResults,
-            {
-              headers: {
-                'Authorization': `Bearer ${getAccessToken()}`
+            const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/train-schedule/${trainScheduleInputs!.id}`,
+              finalResults,
+              {
+                headers: {
+                  'Authorization': `Bearer ${getAccessToken()}`
+                }
+              }).then((res) => res.data as AxiosResponseInterface);
+
+            if (response.status === `success`) {
+              handleSnackbarState(`success`, `The Train Schedule for ${trainScheduleInputs.trainNumber} was successfully updated.`);
+              setDialogOpen(false);
+
+              const updatedSchedulesItems = [...trainScheduleItems!];
+
+              const findIndex = updatedSchedulesItems.findIndex(schedule => schedule.id === trainScheduleInputs.id);
+
+              // performing update on the UI.
+              if (findIndex > -1) {
+                updatedSchedulesItems[findIndex] = { ...finalResults, id: trainScheduleInputs.id };
+                setTrainScheduleItems(updatedSchedulesItems);
               }
-            }).then((res) => res.data as AxiosResponseInterface);
 
-          if (response.status === `success`) {
-            handleSnackbarState(`success`, `The Train Schedule for ${trainScheduleInputs.trainNumber} was successfully updated.`);
-            setDialogOpen(false);
-
-            const updatedSchedulesItems = [...trainScheduleItems!];
-
-            const findIndex = updatedSchedulesItems.findIndex(schedule => schedule.id === trainScheduleInputs.id);
-
-            // performing update on the UI.
-            if (findIndex > -1) {
-              updatedSchedulesItems[findIndex] = { ...finalResults, id: trainScheduleInputs.id };
-              setTrainScheduleItems(updatedSchedulesItems);
+              return;
+            } else {
+              handleSnackbarState(`error`, `Failed to update the train schedule for ${finalResults.trainNumber} train.`);
             }
 
-            return;
-          } else {
-            handleSnackbarState(`error`, `Failed to update the train schedule for ${finalResults.trainNumber} train.`);
           }
 
+          await handleEditTrainSchedule();
+
+        } catch (e) {
+          const error = e as AxiosErrorInterface;
+          handleSnackbarState(`error`, error?.response?.data?.message || `Failed to update the train schedule for ${finalResults.trainNumber} train.`);
+
+        } finally {
+          setBackdropState(false);
         }
-
-        await handleEditTrainSchedule();
-
-      } catch (e) {
-        const error = e as AxiosErrorInterface;
-        handleSnackbarState(`error`, error?.response?.data?.message || `Failed to update the train schedule for ${finalResults.trainNumber} train.`);
-
-      } finally {
-        setBackdropState(false);
-      }
+      });
       return;
     }
 
@@ -301,18 +310,29 @@ export default function Home() {
           </Select>
         </DivContainer>
         <DivContainer className={`flex items-center gap-3`}>
-          <Button className={`w-full`}>Save</Button>
+          <Button disabled={isPending} className={`w-full`}>
+            {isPending ? <CircularProgress size={20}></CircularProgress> : `Save`}
+          </Button>
 
           {dialogMode === `Edit` && (
             <>
               <Paragraph className={`text-center`}>Or</Paragraph>
-              <Button type={`button`} mode={`red`} className={`w-full`}>Delete</Button>
+              <Button disabled={isPending} type={`button`} mode={`red`} className={`w-full`}>Delete</Button>
             </>
           )}
         </DivContainer>
       </form>
     </DivContainer>
   );
+
+  function handleNextPagination() {
+    console.log("total === trainScheduleItems.length:", total === trainScheduleItems.length);
+    console.log('Executing  total',  total);
+    console.log('Executing trainScheduleItems.length', trainScheduleItems.length);
+    if (total === trainScheduleItems.length) return;
+    setPage(prevState => prevState + 1);
+    setNextPageLoading(true);
+  }
 
   return (
     <>
@@ -350,6 +370,10 @@ export default function Home() {
         {!loading &&
           <>
             <DivContainer className={`flex items-center gap-3 mt-6 overflow-x-auto pb-10 px-4`}>
+              {trainScheduleItems?.length === 0 &&
+                <DivContainer className={`text-center m-auto`}>
+                  <Paragraph className={`text-xl`}>No items to be seen! :D</Paragraph>
+                </DivContainer>}
               {trainScheduleItems?.map((schedule) =>
                 <TrainScheduleCard
                   key={schedule.id}
@@ -357,22 +381,33 @@ export default function Home() {
                   onEditClick={() => handleDialogStateForEdit(schedule.id, true)}
                 />
               )}
-            </DivContainer>
-            <DivContainer
-              className={`mt-4 container m-auto px-6`}>
-              <button onClick={() => {
-                handleDialogState(`Create`, true);
-                setTrainScheduleInputs(defaultInputs);
+              {trainScheduleItems?.length !== total && (
+                <DivContainer className={`flex items-center justify-center min-w-[200px]`}>
+                  {nextPageLoading ?
+                    <CircularProgress></CircularProgress> :
+                    <Button disabled={isPending || nextPageLoading || total === trainScheduleItems.length}
+                            mode={`static-white`} onClick={handleNextPagination} className={`px-10 rounded-lg`}>See
+                      More</Button>
+                  }
 
-              }} className={`border-1 cursor-pointer 
-              border-dashed border-zinc-300 w-[362px] h-36 rounded-lg
-              transition-all duration-300 hover:text-white hover:bg-zinc-950
-              hover:border-transparent`}>Create New Schedule
-              </button>
+                </DivContainer>
+              )}
             </DivContainer>
           </>
         }
         {loading && <SkeletonCardLoading />}
+        <DivContainer
+          className={`mt-4 container m-auto px-6`}>
+          <button onClick={() => {
+            handleDialogState(`Create`, true);
+            setTrainScheduleInputs(defaultInputs);
+
+          }} className={`border-1 cursor-pointer 
+              border-dashed border-zinc-300 w-[362px] h-36 rounded-lg
+              transition-all duration-300 hover:text-white hover:bg-zinc-950
+              hover:border-transparent`}>Create New Schedule
+          </button>
+        </DivContainer>
 
       </main>
     </>
