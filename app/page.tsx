@@ -232,12 +232,61 @@ export default function Home() {
     }
 
     if (dialogMode === `Create`) {
-      handleSnackbarState(`success`, `New Train Schedule <12> was successfully created.`);
-      setDialogOpen(false);
-      return;
     }
 
   }
+
+  function handleDeleteSchedule() {
+    startTransition(async () => {
+      try {
+        async function handleDeleteTrainSchedule() {
+
+          if (!trainScheduleInputs?.id) {
+            handleSnackbarState(`error`, `Failed to determine the id of train schedule. Please retry,`);
+            return;
+          }
+          setBackdropState(true);
+
+          const response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/train-schedule/${trainScheduleInputs!.id}`,
+            {
+              headers: {
+                'Authorization': `Bearer ${getAccessToken()}`
+              }
+            }).then((res) => res.data as AxiosResponseInterface);
+
+          if (response.status === `success`) {
+            handleSnackbarState(`warning`, `The Train Schedule for ${trainScheduleInputs.trainNumber} was successfully deleted.`);
+            setDialogOpen(false);
+
+            const updatedSchedulesItems = [...trainScheduleItems!];
+
+            const findIndex = updatedSchedulesItems.findIndex(schedule => schedule.id === trainScheduleInputs.id);
+
+            // performing update on the UI.
+            if (findIndex > -1) {
+              updatedSchedulesItems.splice(findIndex, 1);
+              setTrainScheduleItems(updatedSchedulesItems);
+            }
+
+            return;
+          } else {
+            handleSnackbarState(`error`, `Failed to delete the train schedule for ${trainScheduleInputs?.trainNumber} train.`);
+          }
+
+        }
+
+        await handleDeleteTrainSchedule();
+
+      } catch (e) {
+        const error = e as AxiosErrorInterface;
+        handleSnackbarState(`error`, error?.response?.data?.message || `Failed to delete the train schedule for ${trainScheduleInputs?.trainNumber} train.`);
+
+      } finally {
+        setBackdropState(false);
+      }
+    });
+  }
+
 
   const dialogContent: ReactNode = (
     <DivContainer className={`py-7 px-10`}>
@@ -314,13 +363,16 @@ export default function Home() {
         </DivContainer>
         <DivContainer className={`flex items-center gap-3`}>
           <Button disabled={isPending} className={`w-full`}>
-            {isPending ? <CircularProgress size={20}></CircularProgress> : `Save`}
+            {isPending && dialogMode === `Edit` ? <CircularProgress size={20}></CircularProgress> : `Save`}
           </Button>
 
           {dialogMode === `Edit` && (
             <>
               <Paragraph className={`text-center`}>Or</Paragraph>
-              <Button disabled={isPending} type={`button`} mode={`red`} className={`w-full`}>Delete</Button>
+              <Button onClick={handleDeleteSchedule} disabled={isPending} type={`button`} mode={`red`}
+                      className={`w-full disabled:animate-pulse`}>
+                {isPending ? <CircularProgress size={20}></CircularProgress> : `Delete`}
+              </Button>
             </>
           )}
         </DivContainer>
