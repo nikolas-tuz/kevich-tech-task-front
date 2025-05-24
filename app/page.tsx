@@ -6,7 +6,7 @@ import LottieAnimationTrainJSON from '@/animations/animation_train.json';
 import DivContainer from '@/components/UI/Containers/DivContainer';
 import SecondaryHeading from '@/components/UI/Typography/SecondaryHeading';
 import SearchInput from '@/components/UI/FormControls/SearchInput';
-import { FormEvent, ReactNode, useState, useTransition } from 'react';
+import { FormEvent, ReactNode, useRef, useState, useTransition } from 'react';
 import BadgeButton from '@/components/UI/Buttons/BadgeButton';
 import TrainScheduleCard from '@/components/UI/Cards/TrainScheduleCard';
 import SkeletonCardLoading from '@/components/UI/Cards/SkeletonCardLoading';
@@ -95,6 +95,8 @@ type TrainScheduleInputsType = {
 
 export default function Home() {
   const [backdropState, setBackdropState] = useState(false);
+  const [useTrottleOnBadges, setUseTrottleOnBadges] = useState(false);
+  const timer = useRef<NodeJS.Timeout>(null);
 
   const { handleDialogState, dialogMode, dialogOpen, setDialogOpen, setDialogMode } = useHandleDialogState();
   const { handleSnackbarState, setSnackbarState, snackbarState, snackbarData } = useHandleSnackbarState();
@@ -331,6 +333,21 @@ export default function Home() {
     setNextPageLoading(true);
   }
 
+  // here I do create a custom throttle mechanism for switching between different
+  // statuses.
+  function handleChangeStatusFilter(option: ActiveTrainScheduleFilterType) {
+    if (timer?.current || activeTrainScheduleFilter === option) return; // Prevent multiple calls within the throttle period
+
+    setUseTrottleOnBadges(true);
+    handleChangeFilter(option); // Execute the filter change immediately
+
+    timer.current = setTimeout(() => {
+      clearTimeout(timer.current!); // Clear the timer after the throttle period
+      timer.current = null; // Reset the timer reference
+      setUseTrottleOnBadges(false);
+    }, 700); // Throttle period
+  }
+
   return (
     <>
       <MUIBackdrop state={{ open: backdropState, setOpen: setBackdropState }} />
@@ -355,7 +372,9 @@ export default function Home() {
               {availableFilterOptions.map((option, index) =>
                 <BadgeButton
                   key={index}
-                  onClick={() => handleChangeFilter(option.filter)}
+                  className={`disabled:opacity-65`}
+                  disabled={useTrottleOnBadges}
+                  onClick={() => handleChangeStatusFilter(option.filter)}
                   active={activeTrainScheduleFilter === option.filter}>
                   {option.label}
                 </BadgeButton>
