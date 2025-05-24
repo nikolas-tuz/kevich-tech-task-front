@@ -52,6 +52,29 @@ export default function AuthPage(/*{}: AuthPageType*/) {
     }
   }, []);
 
+  async function handleAuthentication(results: { email: string; password: string }, mode: `login` | `register`) {
+    setBackdropState(true);
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${mode}`, {
+        email: results.email,
+        password: results.password
+      }).then(res => res.data as AxiosResponseInterface);
+
+      if (response?.status === `success`
+        && response?.data?.accessToken
+        && response?.data?.user?.email
+      ) {
+        logIn(response.data.accessToken, response.data.user.email);
+      } else {
+        setErrorMessage(response.data?.error || `Failed to ${mode} the user. Please try again.`);
+      }
+    } catch (e) {
+      setBackdropState(false);
+      const error = e as AxiosErrorInterface;
+      setErrorMessage(error?.response?.data?.message || `Failed to ${mode} the user. Please try again.`);
+    }
+  }
+
   function handleLogin(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -70,25 +93,7 @@ export default function AuthPage(/*{}: AuthPageType*/) {
 
     setBackdropState(true);
     startTransition(async () => {
-      try {
-        const login = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`, {
-          email: results.email,
-          password: results.password
-        }).then(res => res.data as AxiosResponseInterface);
-
-        if (login?.status === `success`
-          && login?.data?.accessToken
-          && login?.data?.user?.email
-        ) {
-          logIn(login.data.accessToken, login.data.user.email);
-        } else {
-          setErrorMessage(login.data?.error || `Failed to log the user. Please try again.`);
-        }
-      } catch (e) {
-        setBackdropState(false);
-        const error = e as AxiosErrorInterface;
-        setErrorMessage(error?.response?.data?.message || `Failed to log the user. Please try again.`);
-      }
+      await handleAuthentication(results, `login`);
     });
   }
 
@@ -114,24 +119,10 @@ export default function AuthPage(/*{}: AuthPageType*/) {
       setErrorMessage(validate.error.errors[0].message);
       return;
     }
-    setBackdropState(true);
-
-    /* TODO: LOG THE USER IN
-    *   first, use the API to  create a user, and generate a token. Then assign JWT to cookie */
 
     startTransition(async () => {
-      try {
-        // simulate loading for 2 secs
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      } catch (e) {
-          console.error(e);
-      }
+      await handleAuthentication(results, `register`);
     });
-
-    // resetting the form
-    // currObject.reset();
-    // output
-    console.log('results:', results);
   }
 
   const submitFormBtnText = authState === `login` ? `Sign In` : `Sign Up`;
