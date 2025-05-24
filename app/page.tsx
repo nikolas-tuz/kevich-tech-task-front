@@ -1,6 +1,8 @@
 'use client';
 
 import NavigationDashboard from '@/components/pages/TrainDashboard/NavigationDashboard';
+import LottieAnimationTrainJSON from '@/animations/animation_train.json';
+
 import DivContainer from '@/components/UI/Containers/DivContainer';
 import SecondaryHeading from '@/components/UI/Typography/SecondaryHeading';
 import SearchInput from '@/components/UI/FormControls/SearchInput';
@@ -30,6 +32,7 @@ import { AxiosErrorInterface, AxiosResponseInterface } from '@/utils/interfaces/
 import axios from 'axios';
 import { getAccessToken } from '@/utils/auth/getAccessToken';
 import { CircularProgress } from '@mui/material';
+import Lottie from 'lottie-react';
 
 export type ActiveTrainScheduleFilterType =
   `all`
@@ -326,8 +329,8 @@ export default function Home() {
   );
 
   function handleNextPagination() {
-    console.log("total === trainScheduleItems.length:", total === trainScheduleItems.length);
-    console.log('Executing  total',  total);
+    console.log('total === trainScheduleItems.length:', total === trainScheduleItems.length);
+    console.log('Executing  total', total);
     console.log('Executing trainScheduleItems.length', trainScheduleItems.length);
     if (total === trainScheduleItems.length) return;
     setPage(prevState => prevState + 1);
@@ -371,7 +374,8 @@ export default function Home() {
           <>
             <DivContainer className={`flex items-center gap-3 mt-6 overflow-x-auto pb-10 px-4`}>
               {trainScheduleItems?.length === 0 &&
-                <DivContainer className={`text-center m-auto`}>
+                <DivContainer className={`text-center m-auto mt-5`}>
+                  <Lottie animationData={LottieAnimationTrainJSON} />
                   <Paragraph className={`text-xl`}>No items to be seen! :D</Paragraph>
                 </DivContainer>}
               {trainScheduleItems?.map((schedule) =>
