@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  /*const tokenCookie = request.cookies.get('access_token');
+  const tokenCookie = request.cookies.get('access_token');
   const token = tokenCookie ? tokenCookie.value : null;
 
   const isTrainDashboardPage = request.nextUrl.pathname === `/`;
@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
     if (isTrainDashboardPage) {
       return NextResponse.redirect(new URL('/auth?error=Please log in to use the app.', request.url));
     }
-  }*/
+  }
 
   return NextResponse.next();
 }
