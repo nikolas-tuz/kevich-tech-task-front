@@ -143,11 +143,9 @@ export default function Home() {
     const currObject = e.currentTarget;
     const formData = new FormData(currObject);
     const results = Object.fromEntries(formData.entries()) as TrainScheduleInputsType & TrainNumberFromForm;
-    // resetting the form
-    // currObject.reset();
-    // output
+
     if (!dialogMode) {
-      handleSnackbarState(`error`, `Dialog state is not opened. Please retry.`);
+      handleSnackbarState(`error`, `Dialog mode was not opened. Please retry.`);
       return;
     }
 
@@ -181,10 +179,12 @@ export default function Home() {
     console.info('results:', results);
 
     if (dialogMode === `Edit`) {
+      /* TODO: USE PUT METHOD TO EDIT THE CORRESPONDING SCHEDULE */
       return;
     }
 
     if (dialogMode === `Create`) {
+      /* TODO: USE POST METHOD TO CREATE A NEW SCHEDULE; */
       return;
     }
 
