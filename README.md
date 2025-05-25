@@ -73,7 +73,7 @@ The backend exposes the following API endpoints:
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/nikolas-tuz/kevich-tech-task-back.git](https://github.com/nikolas-tuz/kevich-tech-task-back.git)
+    git clone https://github.com/nikolas-tuz/kevich-tech-task-back.git
     cd kevich-tech-task-back
     ```
 2.  **Install dependencies:**
@@ -107,8 +107,8 @@ The backend exposes the following API endpoints:
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/nikolas-tuz/kevych-tech-task-front.git](https://github.com/nikolas-tuz/kevych-tech-task-front.git)
-    cd kevich-tech-task-front
+    git clone https://github.com/nikolas-tuz/kevych-tech-task-front.git
+    cd kevych-tech-task-front
     ```
 2.  **Install dependencies:**
     ```bash
