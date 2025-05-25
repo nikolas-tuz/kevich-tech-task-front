@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Train Schedule Application
+
+Привіт Kevych Solutions! 😎 Дякую за таке цікаве, комплексне тестове завдання! Нижче вже на англійській розписав, як запустити цей застосунок. Створив інструкції й нотатки по запуску. Застосунок написаний використовуючи NestJS, Neon Tech Serverless PostgreSQL, NextJS, MUI і більше. Прошу оцінити якість коду, враховуючи скільки часу було дано на виконання. Я старався писати чистий, реюзабельний код як і на фронті, так і на бекі. Гарного дня! 😍
+
+## Live Demos
+
+* **Deployed Front-end (Vercel):** [https://kevich-tech-task-front.vercel.app/](https://kevich-tech-task-front.vercel.app/)
+* **Deployed Backend (Render):** [https://kevich-tech-task-back.onrender.com](https://kevich-tech-task-back.onrender.com)
+    * *Note: The backend is currently on a paid Render plan for optimal viewing. After the tech task review period, it will be moved to a free starter plan, which may result in server hibernation during inactivity.*
+* **Figma UI/UX Design:** [https://www.figma.com/design/cUs4MSK5uQoJaEbh3vvwU8/Kevich-Solutions-Tech-Task--UX-UI-?node-id=1-2&t=eMoqzc9yJBB6sSFw-1](https://www.figma.com/design/cUs4MSK5uQoJaEbh3vvwU8/Kevich-Solutions-Tech-Task--UX-UI-?node-id=1-2&t=eMoqzc9yJBB6sSFw-1)
+
+## Project Overview
+
+This application provides a robust platform for managing train schedules, incorporating features such as:
+
+* **Authorization and Authentication:** Secure user access with JWT-based authentication.
+* **CRUD Operations:** Full functionality to create, read, update, and delete train schedules using GET, POST, PUT, PATCH, and DELETE requests.
+* **Search and Filtering:** A search field is available with `debouncing` for efficient searching and filtering by train statuses with `throttling`.
+* **Pagination:** Proper pagination implementation for managing large datasets.
+* **Cloud Deployment:** Both front-end and back-end are deployed to cloud platforms.
+
+All main requirements outlined in the technical task have been thoroughly implemented. (Note that the PUT & PATCH requests were created on backend appropriately, but only PUT utilized on front-end).
+
+## Technologies Used
+
+### Backend
+
+* **Language:** TypeScript 
+* **Server:** Nest.js 
+* **Database:** Neon Tech Serverless PostgreSQL 
+* **ORM:** Prisma ORM
+* **Authentication:** JWT
+
+...
+
+### Front-end
+
+* **Framework:** React.js (Next.js) 
+* **Form Validation:** Zod
+* **UI Library:** Material-UI (MUI) & My Custom Components
+* **API Interface** Postman
+
+...
+
+## API Endpoints
+
+The backend exposes the following API endpoints:
+
+### Auth
+* `POST /users/register` - Create a new user
+* `POST /users/login` - Log in a user
+
+### Train Schedule
+* `GET /train-schedule?page=1&limit=10` - Get paginated train schedules for the authenticated user
+    * *Note: you can also chain query params like "&status" and "&searchTerm" for filtering options*
+
+* `GET /train-schedule/:id` - Get a specific train schedule by ID
+* `PUT /train-schedule/:id` - Update a train schedule by ID
+* `PATCH /train-schedule/:id` - Partially update a train schedule by ID
+* `DELETE /train-schedule/:id` - Delete a train schedule by ID
+* `POST /train-schedule` - Create a new train schedule
+* `GET /health` - Health check endpoint
 
 ## Getting Started
 
-First, run the development server:
+### Running the Backend
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/nikolas-tuz/kevich-tech-task-back.git](https://github.com/nikolas-tuz/kevich-tech-task-back.git)
+    cd kevich-tech-task-back
+    ```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **Create a `.env` file** in the root directory and configure the following environment variables:
+    ```
+    PORT=3001
+    JWT_SECRET=YOUR_VERY_SECRET_KEY_HERE(should be the same for front-end)
+    JWT_EXPIRES_AT=8h
+    DATABASE_URL="postgresql://user:password@host:port/database?schema=public"
+    ALLOW_ORIGIN=http://localhost:3000
+    ```
+    * `JWT_SECRET`: A strong, unique secret key for JWT signing.
+    * `JWT_EXPIRES_AT`: The expiration time for JWTs (e.g., `1h`, `7d`).
+    * `DATABASE_URL`: Your PostgreSQL connection string. This project uses Neon Tech serverless PostgreSQL.
+    * `ALLOW_ORIGIN`: allowed origin for CORS(single string).
+4.  **Run database migrations (if any) and generate Prisma client:**
+    ```bash
+    npx prisma migrate dev --name init
+    npx prisma generate
+    ```
+5.  **Start the development server:**
+    ```bash
+    npm run start:dev
+    ```
+    The backend server will typically run on `http://localhost:3001`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Running the Front-end
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/nikolas-tuz/kevich-tech-task-front.git](https://github.com/nikolas-tuz/kevich-tech-task-front.git)
+    cd kevich-tech-task-front
+    ```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **Create a `.env.local` file** in the root directory and configure the following environment variable:
+    ```
+    NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+    ```
+    * `NEXT_PUBLIC_BACKEND_URL`: The URL of your deployed or local backend server.
+4.  **Create a `.env` file** in the root directory and configure the following environment variable:
+    ```
+    JWT_SECRET=YOUR_VERY_SECRET_KEY_HERE
+    ```
+    * `JWT_SECRET`: This should be the **same secret key** as used in your backend's `JWT_SECRET`.
+5.  **Start the development server:**
+    ```bash
+    npm run dev
+    ```
+    The front-end application will typically run on `http://localhost:3000`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Potential Improvements
 
-## Learn More
+* **Responsiveness:** Due to time constraints, the application is not fully responsive across all devices. This would be a key area for future improvement.
+* **Advanced Search:** The current searching implementation using Prisma has limitations. Leveraging native SQL for more complex and performant search queries would be beneficial.
+* **Caching Results:** It would be very noice 😎 to actually cache the train data using e.g. Redis or cache storage on front-end.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Love you, Kevych Solutions!
