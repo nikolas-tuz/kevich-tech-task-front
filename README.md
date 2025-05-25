@@ -33,6 +33,12 @@ All main requirements outlined in the technical task have been thoroughly implem
 
 ...
 
+### Database (Neon Tech Serverless PostgreSQL)
+
+* **Schema Design:** The database is structured with two main schemas: `users` and `trainSchedules`.
+* **Relationships:** A one-to-many relationship is established between `users` and `trainSchedules`, meaning every new train schedule created is linked to a specific user.
+* **Data Privacy Philosophy:** The chosen design philosophy ensures that `trainSchedules` are private. Users can only access and manage their own train schedules, and cannot view other users' schedules. While an alternative approach using technologies like WebSocket connections could allow for broader visibility of all posted train schedules, this implementation prioritizes individual user data privacy.
+
 ### Front-end
 
 * **Framework:** React.js (Next.js) 
