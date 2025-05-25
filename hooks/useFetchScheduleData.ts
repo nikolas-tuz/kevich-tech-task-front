@@ -6,6 +6,7 @@ import axios from 'axios';
 import { getAccessToken } from '@/utils/auth/getAccessToken';
 import { AxiosErrorInterface, AxiosResponseInterface } from '@/utils/interfaces/AxiosResponse.interface';
 import { INPUT_VAL_DEBOUNCE_IN_MS, SCHEDULE_LIMIT } from '@/utils/data/global-variables';
+import { ActiveSortingStateType, OrderEnum, SortByEnum } from '@/utils/types/sorting.types';
 
 function mergeAndDeduplicateItems(
   existingItems: TrainScheduleDataType[],
@@ -29,6 +30,12 @@ export function useFetchScheduleData() {
   const [trainScheduleItems, setTrainScheduleItems] = useState<TrainScheduleDataType[]>([]);
   const [activeTrainScheduleFilter, setActiveTrainScheduleFilter] = useState<ActiveTrainScheduleFilterType>(`all`);
 
+  const [activeSortingFilter, setActiveSortingFilter] = useState<ActiveSortingStateType>({
+    sortBy: SortByEnum.DATE_CREATED,
+    order: OrderEnum.DESC
+  });
+
+
   function handleChangeFilter(filterOption: ActiveTrainScheduleFilterType) {
     if (activeTrainScheduleFilter !== filterOption) {
       setPage(1);
@@ -39,7 +46,7 @@ export function useFetchScheduleData() {
   }
 
   useEffect(() => {
-    let url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/train-schedule?page=${page}&limit=${limit}`;
+    let url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/train-schedule?page=${page}&limit=${limit}&sortBy=${activeSortingFilter.sortBy}&order=${activeSortingFilter.order}`;
 
     if (activeTrainScheduleFilter !== `all`) {
       url += `&status=${activeTrainScheduleFilter}`;
@@ -88,7 +95,8 @@ export function useFetchScheduleData() {
         setErrorMessage(error?.response?.data?.message || `Failed to load train schedules. Please try again later.`);
       });
     }
-  }, [activeTrainScheduleFilter, debouncedInputValue, page]);
+  }, [activeTrainScheduleFilter, debouncedInputValue, page, activeSortingFilter.order, activeSortingFilter.sortBy]);
+
   return {
     loading,
     errorMessage,
@@ -96,11 +104,13 @@ export function useFetchScheduleData() {
     activeTrainScheduleFilter,
     total,
     nextPageLoading,
+    activeSortingFilter,
     setTrainScheduleItems,
     setInputValue,
     handleChangeFilter,
     setPage,
     setNextPageLoading,
-    setTotal
+    setTotal,
+    setActiveSortingFilter
   };
 }

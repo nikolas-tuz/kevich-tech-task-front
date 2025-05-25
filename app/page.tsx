@@ -29,7 +29,8 @@ import axios from 'axios';
 import { getAccessToken } from '@/utils/auth/getAccessToken';
 import { CircularProgress } from '@mui/material';
 import Lottie from 'lottie-react';
-import { THROTTLE_STATUS_CHANGES_IN_MS } from '@/utils/data/global-variables';
+import { THROTTLE_SORTING_CHANGES_IN_MS, THROTTLE_STATUS_CHANGES_IN_MS } from '@/utils/data/global-variables';
+import { OrderEnum, SortByEnum } from '@/utils/types/sorting.types';
 
 export type ActiveTrainScheduleFilterType =
   `all`
@@ -113,7 +114,9 @@ export default function Home() {
     setInputValue,
     handleChangeFilter,
     errorMessage,
-    setTotal
+    setTotal,
+    activeSortingFilter,
+    setActiveSortingFilter
   } = useFetchScheduleData();
 
   const defaultInputs: TrainScheduleInputsType & TrainNumberFromDBType = {
@@ -442,6 +445,34 @@ export default function Home() {
     }, THROTTLE_STATUS_CHANGES_IN_MS); // Throttle period
   }
 
+  function handleSortingFilter(clickedFilter: `order` | `sortBy`) {
+    if (timer?.current) return;
+    setUseThrottleOnBadges(true);
+    setPage(1);
+
+    if (clickedFilter === `sortBy`) {
+      setActiveSortingFilter((prevState) => ({
+        ...prevState,
+        sortBy: prevState.sortBy === SortByEnum.DATE_CREATED
+          ? SortByEnum.TRAIN_NUMBER
+          : SortByEnum.DATE_CREATED
+      }));
+    } else {
+      setActiveSortingFilter((prevState) => ({
+        ...prevState,
+        order: prevState.order === OrderEnum.DESC
+          ? OrderEnum.ASC
+          : OrderEnum.DESC
+      }));
+    }
+
+    timer.current = setTimeout(() => {
+      clearTimeout(timer.current!); // Clear the timer after the throttle period
+      timer.current = null; // Reset the timer reference
+      setUseThrottleOnBadges(false);
+    }, THROTTLE_SORTING_CHANGES_IN_MS); // Throttle period
+  }
+
   return (
     <>
       <MUIBackdrop state={{ open: backdropState, setOpen: setBackdropState }} />
@@ -473,6 +504,29 @@ export default function Home() {
                   {option.label}
                 </BadgeButton>
               )}
+            </DivContainer>
+            <DivContainer className={`flex items-center gap-3`}>
+              <DivContainer className={`flex items-center gap-2`}>
+                <Paragraph>Sort By:</Paragraph>
+                <BadgeButton
+                  className={`disabled:animate-pulse`}
+                  disabled={useThrottleOnBadges}
+                  onClick={() => handleSortingFilter(`sortBy`)}
+                >
+                  {activeSortingFilter.sortBy === SortByEnum.DATE_CREATED ? 'Date Created' : 'Train Number'}
+                </BadgeButton>
+              </DivContainer>
+              <DivContainer className={`flex items-center gap-2`}>
+                <Paragraph>Order:</Paragraph>
+                <BadgeButton
+                  className={`disabled:animate-pulse`}
+                  disabled={useThrottleOnBadges}
+                  active={false}
+                  onClick={() => handleSortingFilter(`order`)}
+                >
+                  {activeSortingFilter.order === OrderEnum.DESC ? `Descending` : `Ascending`}
+                </BadgeButton>
+              </DivContainer>
             </DivContainer>
           </DivContainer>
         </DivContainer>

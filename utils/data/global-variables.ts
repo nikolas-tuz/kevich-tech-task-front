@@ -1,3 +1,4 @@
 export const THROTTLE_STATUS_CHANGES_IN_MS = 700;
+export const THROTTLE_SORTING_CHANGES_IN_MS = 800;
 export const INPUT_VAL_DEBOUNCE_IN_MS = 400;
 export const SCHEDULE_LIMIT = 5;
