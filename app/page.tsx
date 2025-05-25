@@ -2,6 +2,7 @@
 
 import NavigationDashboard from '@/components/pages/TrainDashboard/NavigationDashboard';
 import LottieAnimationTrainJSON from '@/animations/animation_train.json';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import DivContainer from '@/components/UI/Containers/DivContainer';
 import SecondaryHeading from '@/components/UI/Typography/SecondaryHeading';
@@ -535,11 +536,15 @@ export default function Home() {
           <>
             <DivContainer className={`flex items-center gap-3 mt-6 overflow-x-auto pb-10 px-4`}>
 
-              {trainScheduleItems?.length === 0 &&
-                <DivContainer className={`text-center m-auto mt-5`}>
-                  <Lottie animationData={LottieAnimationTrainJSON} />
-                  <Paragraph className={`text-xl`}>No schedules to be seen! :D</Paragraph>
-                </DivContainer>}
+              <AnimatePresence>
+                {trainScheduleItems?.length === 0 &&
+                  <motion.div whileTap={{ scale: .8 }} animate={{ translateY: 0 }} initial={{ translateY: 200 }}
+                              className={`text-center m-auto mt-5`}>
+                    <Lottie animationData={LottieAnimationTrainJSON} />
+                    <Paragraph className={`text-xl`}>No schedules to be seen! :D</Paragraph>
+                  </motion.div>
+                }
+              </AnimatePresence>
               {trainScheduleItems?.map((schedule) =>
                 <TrainScheduleCard
                   key={schedule.id}
