@@ -4,8 +4,8 @@
 
 ## Live Demos
 
-* **Deployed Front-end (Vercel):** [https://kevich-tech-task-front.vercel.app/](https://kevich-tech-task-front.vercel.app/)
-* **Deployed Backend (Render):** [https://kevich-tech-task-back.onrender.com](https://kevich-tech-task-back.onrender.com)
+* **Deployed Front-end (Vercel):** [https://kevych-tech-task-front.vercel.app/](https://kevych-tech-task-front.vercel.app/)
+* **Deployed Backend (Render):** [https://kevych-tech-task-back.onrender.com](https://kevych-tech-task-back.onrender.com)
     * *Note: The backend is currently on a paid Render plan for optimal viewing. After the tech task review period, it will be moved to a free starter plan, which may result in server hibernation during inactivity.*
 * **Figma UI/UX Design:** [https://www.figma.com/design/cUs4MSK5uQoJaEbh3vvwU8/Kevich-Solutions-Tech-Task--UX-UI-?node-id=1-2&t=eMoqzc9yJBB6sSFw-1](https://www.figma.com/design/cUs4MSK5uQoJaEbh3vvwU8/Kevich-Solutions-Tech-Task--UX-UI-?node-id=1-2&t=eMoqzc9yJBB6sSFw-1)
 
@@ -65,7 +65,7 @@ The backend exposes the following API endpoints:
 * `PATCH /train-schedule/:id` - Partially update a train schedule by ID
 * `DELETE /train-schedule/:id` - Delete a train schedule by ID
 * `POST /train-schedule` - Create a new train schedule
-* `GET /health` - Health check endpoint
+* `GET /` - Health check endpoint
 
 ## Getting Started
 
@@ -73,7 +73,7 @@ The backend exposes the following API endpoints:
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/nikolas-tuz/kevich-tech-task-back.git](https://github.com/nikolas-tuz/kevich-tech-task-back.git)
+    git clone [https://github.com/nikolas-tuz/kevych-tech-task-back.git](https://github.com/nikolas-tuz/kevych-tech-task-back.git)
     cd kevich-tech-task-back
     ```
 2.  **Install dependencies:**
@@ -107,7 +107,7 @@ The backend exposes the following API endpoints:
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/nikolas-tuz/kevich-tech-task-front.git](https://github.com/nikolas-tuz/kevich-tech-task-front.git)
+    git clone [https://github.com/nikolas-tuz/kevych-tech-task-front.git](https://github.com/nikolas-tuz/kevych-tech-task-front.git)
     cd kevich-tech-task-front
     ```
 2.  **Install dependencies:**
