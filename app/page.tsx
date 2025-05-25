@@ -534,9 +534,9 @@ export default function Home() {
 
         {!loading && !errorMessage &&
           <>
-            <DivContainer className={`flex items-center gap-3 mt-6 overflow-x-auto pb-10 px-4`}>
+            <AnimatePresence>
+              <motion.div className={`flex items-center gap-3 mt-6 overflow-x-auto pb-10 px-4 pt-2`}>
 
-              <AnimatePresence>
                 {trainScheduleItems?.length === 0 &&
                   <motion.div whileTap={{ scale: .8 }} animate={{ translateY: 0 }} initial={{ translateY: 200 }}
                               className={`text-center m-auto mt-5`}>
@@ -544,26 +544,30 @@ export default function Home() {
                     <Paragraph className={`text-xl`}>No schedules to be seen! :D</Paragraph>
                   </motion.div>
                 }
-              </AnimatePresence>
-              {trainScheduleItems?.map((schedule) =>
-                <TrainScheduleCard
-                  key={schedule.id}
-                  {...schedule}
-                  onEditClick={() => handleDialogStateForEdit(schedule.id, true)}
-                />
-              )}
-              {trainScheduleItems?.length !== total && (
-                <DivContainer className={`flex items-center justify-center min-w-[200px]`}>
-                  {nextPageLoading ?
-                    <CircularProgress></CircularProgress> :
-                    <Button disabled={isPending || nextPageLoading || total === trainScheduleItems.length}
-                            mode={`static-white`} onClick={handleNextPagination} className={`px-10 rounded-lg`}>See
-                      More</Button>
-                  }
+                {trainScheduleItems?.map((schedule) =>
+                  <TrainScheduleCard
+                    whileHover={{ rotate: 3 }}
+                    initial={{ scale: .3, opacity: .5 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    viewport={{ once: true }}
+                    key={schedule.id}
+                    {...schedule}
+                    onEditClick={() => handleDialogStateForEdit(schedule.id, true)}
+                  />
+                )}
+                {trainScheduleItems?.length !== total && (
+                  <DivContainer className={`flex items-center justify-center min-w-[200px]`}>
+                    {nextPageLoading ?
+                      <CircularProgress></CircularProgress> :
+                      <Button disabled={isPending || nextPageLoading || total === trainScheduleItems.length}
+                              mode={`static-white`} onClick={handleNextPagination} className={`px-10 rounded-lg`}>See
+                        More</Button>
+                    }
 
-                </DivContainer>
-              )}
-            </DivContainer>
+                  </DivContainer>
+                )}
+              </motion.div>
+            </AnimatePresence>
           </>
         }
         {loading && <SkeletonCardLoading />}

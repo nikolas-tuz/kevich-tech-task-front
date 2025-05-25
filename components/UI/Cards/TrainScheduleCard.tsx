@@ -1,6 +1,7 @@
-// 'use client';
+'use client';
 
 import { ComponentPropsWithoutRef } from 'react';
+import { HTMLMotionProps, motion } from 'framer-motion';
 import DivContainer from '@/components/UI/Containers/DivContainer';
 import Paragraph from '@/components/UI/Typography/Paragraph';
 import BadgeButton from '@/components/UI/Buttons/BadgeButton';
@@ -19,7 +20,7 @@ type TrainScheduleCardType = {
   status: string;
   onEditClick?: (id: string) => void;
   // children: ReactNode;
-} & ComponentPropsWithoutRef<'figure'>;
+} & ComponentPropsWithoutRef<'figure'> & HTMLMotionProps<'figure'>;
 
 export default function
   TrainScheduleCard({
@@ -44,8 +45,9 @@ export default function
 
   return (
     <>
-      <figure {...props}
-              className={`${appliedColor} py-3 px-5 min-w-[362px] rounded-xl relative ${className}`}>
+      <motion.figure
+        {...props}
+        className={`${appliedColor} py-3 px-5 min-w-[362px] rounded-xl relative ${className}`}>
         <h3 className={`text-lg mb-1`}>Train Number: {trainNumber}</h3>
         <DivContainer className={`flex justify-center flex-col gap-1 mb-7`}>
           <Paragraph className={`text-sm`}>Departure station: {departureStation}</Paragraph>
@@ -60,15 +62,17 @@ export default function
           active={false}>{formatStatus(status)}
         </BadgeButton>
         <Tooltip title={`Click to edit this train schedule :D`} followCursor>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.5 }}
+            whileTap={{ scale: .8 }}
             onClick={onEditClick ? () => onEditClick(id) : undefined}
             className={`absolute bottom-3 right-4 bg-zinc-900 rounded-full w-8 h-8 flex items-center justify-center
               transition-all duration-300 hover:scale-105 cursor-pointer
                active:scale-95`}>
             <ArrowIcon />
-          </button>
+          </motion.button>
         </Tooltip>
-      </figure>
+      </motion.figure>
     </>
   );
 }
