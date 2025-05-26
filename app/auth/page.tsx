@@ -23,6 +23,7 @@ import axios from 'axios';
 import { AxiosErrorInterface, AxiosResponseInterface } from '@/utils/interfaces/AxiosResponse.interface';
 import { logIn } from '@/utils/auth/logIn';
 import MUIBackdrop from '@/components/UI/Backdrops/MUIBackdrop';
+import PlaceholderText from '@/components/UI/InfoMessage/PlaceholderText';
 
 type AuthStateType = `login` | `register`;
 
@@ -170,9 +171,14 @@ export default function AuthPage(/*{}: AuthPageType*/) {
                 placeholder={`Enter Password`}
               />
             </DivContainer>
-            <DivContainer>
-            </DivContainer>
             {errorMessage && <ErrorMessage className={`flex items-center gap-3 mt-3`}>{errorMessage}</ErrorMessage>}
+
+            <DivContainer className={`mt-4`}>
+              <PlaceholderText className={`text-sm`} tooltipPlacement={`top`}
+                               tooltipTitle={`I did change the Render server plan to free solution. The tech specialist approved my tech task, so I do not want to waste money on paid server `}
+                               text={`Hey! :D The server can be in hibernation. In this case when you try to sign in/up, you need to wait
+            up to 1 minute for it to spin up 😪`} />
+            </DivContainer>
             <Button className={`mt-8 `}>
               {isPending ? <CircularProgress color={`error`} /> : <>Sign In</>}
             </Button>
@@ -209,9 +215,14 @@ export default function AuthPage(/*{}: AuthPageType*/) {
                 placeholder={`Confirm Password`}
               />
             </DivContainer>
-            <DivContainer>
-            </DivContainer>
             {errorMessage && <ErrorMessage className={`flex items-center gap-3 mt-3`}>{errorMessage}</ErrorMessage>}
+
+            <DivContainer className={`mt-4`}>
+              <PlaceholderText className={`text-sm`} tooltipPlacement={`top`}
+                               tooltipTitle={`I did change the Render server plan to free solution. The tech specialist approved my tech task, so I do not want to waste money on paid server `}
+                               text={`Hey! :D The server can be in hibernation. In this case when you try to sign in/up, you need to wait
+            up to 1 minute for it to spin up 😪`} />
+            </DivContainer>
             <Button className={`mt-8 `}>
               {isPending ? <CircularProgress color={`error`} /> : <>{submitFormBtnText}</>}
             </Button>
