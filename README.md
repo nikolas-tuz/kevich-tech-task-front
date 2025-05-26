@@ -1,6 +1,6 @@
 # Train Schedule Application
 
-Привіт Kevych Solutions! 😎 Дякую за таке цікаве, комплексне тестове завдання! Нижче вже на англійській розписав, як запустити цей застосунок. Створив інструкції й нотатки по запуску. Застосунок написаний використовуючи NestJS, Neon Tech Serverless PostgreSQL, PrismaORM, NextJS, MUI і більше. Прошу оцінити якість коду, враховуючи скільки часу було дано на виконання. Я старався писати чистий, реюзабельний код як і на фронті, так і на бекі. Гарного дня! 😍
+Привіт Kevych Solutions! 😎 Дякую за таке цікаве, комплексне тестове завдання! Нижче вже на англійській розписав, як запустити цей застосунок. Створив інструкції й нотатки по запуску. Застосунок написаний використовуючи NestJS, Serverless PostgreSQL(Neon Tech), PrismaORM, NextJS, MUI і більше. Прошу оцінити якість коду, враховуючи скільки часу було дано на виконання. Я старався писати чистий, реюзабельний код як і на фронті, так і на бекі. Гарного дня! 😍
 
 ## Live Demos
 
@@ -27,13 +27,13 @@ All main requirements outlined in the technical task have been thoroughly implem
 
 * **Language:** TypeScript 
 * **Server:** Nest.js 
-* **Database:** Neon Tech Serverless PostgreSQL 
+* **Database:** Serverless PostgreSQL(Neon Tech) 
 * **ORM:** Prisma ORM
 * **Authentication:** JWT
 
 ...
 
-### Database (Neon Tech Serverless PostgreSQL)
+### Database (Serverless PostgreSQL from Neon Tech)
 
 * **Schema Design:** The database is structured with two main schemas: `users` and `trainSchedules`.
 * **Relationships:** A one-to-many relationship is established between `users` and `trainSchedules`, meaning every new train schedule created is linked to a specific user.
@@ -43,8 +43,9 @@ All main requirements outlined in the technical task have been thoroughly implem
 
 * **Framework:** React.js (Next.js) 
 * **Form Validation:** Zod
+* **Animations:** Framer Motion & Lottie Animations
 * **UI Library:** Material-UI (MUI) & My Custom Components
-* **API Interface** Postman
+* **API Interface:** Postman
 
 ...
 
@@ -58,7 +59,7 @@ The backend exposes the following API endpoints:
 
 ### Train Schedule
 * `GET /train-schedule?page=1&limit=10` - Get paginated train schedules for the authenticated user
-    * *Note: you can also chain query params like "&status" and "&searchTerm" for filtering options*
+    * *Note: you can also chain query params like "&status", "&searchTerm", "&order", "&sortBy" for filtering/sorting options*
 
 * `GET /train-schedule/:id` - Get a specific train schedule by ID
 * `PUT /train-schedule/:id` - Update a train schedule by ID
