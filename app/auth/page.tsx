@@ -130,7 +130,7 @@ export default function AuthPage(/*{}: AuthPageType*/) {
 
   return (
     <>
-      <MUIBackdrop state={{ open: backdropState, setOpen: setBackdropState }} />
+      <MUIBackdrop circularProgress={`percentage`} state={{ open: backdropState, setOpen: setBackdropState }} />
       <SnackbarMUI
         severity={snackbarData?.severity}
         message={snackbarData?.message}
